@@ -7,41 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
             <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js?v=20250619-user-recognition-fix"></script>
     <script>
-        // Configure SDK to use correct checkout service
-        window.FAIRS_SDK_CONFIG = {
-            checkoutBaseUrl: "http://localhost:3000"
-        };
-
-        // Override SDK iframe creation to use correct checkout URL
+        // Configure SDK for correct checkout routing
         window.addEventListener("DOMContentLoaded", function() {
-            // Wait for SDK to load then override iframe creation
             setTimeout(function() {
                 if (window.FairsSDK && window.FairsSDK.checkout) {
                     const originalOpen = window.FairsSDK.checkout.open;
                     window.FairsSDK.checkout.open = function(data) {
                         console.log("[LV Override] 🔧 Overriding checkout URL...");
                         const result = originalOpen.call(this, data);
-                        
-                        // Find and fix iframe src after modal creation
                         setTimeout(function() {
                             const iframe = document.querySelector("#fairs-checkout-modal iframe");
                             if (iframe && iframe.src.includes("localhost:3007")) {
                                 const newSrc = iframe.src.replace("localhost:3007", "localhost:3000");
-                                console.log("[LV Override] 🔄 Redirecting iframe from", iframe.src, "to", newSrc);
+                                console.log("[LV Override] 🔄 Redirecting iframe:", newSrc);
                                 iframe.src = newSrc;
                             }
                         }, 100);
-                        
                         return result;
                     };
                 }
             }, 1000);
         });
-                }
-            }, 1000);
-        });
-            checkoutBaseUrl: "http://localhost:3000"
-        };
     </script>
     <style>
         /* Load Futura font from lv-checkout */
