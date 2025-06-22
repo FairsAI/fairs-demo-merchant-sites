@@ -6,12 +6,49 @@
     <title>Louis Vuitton - Checkout (Production SDK)</title>
     <script src="https://cdn.tailwindcss.com"></script>
             <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js?v=20250619-user-recognition-fix"></script>
+    <script>
+        // Configure SDK to use correct checkout service
+        window.FAIRS_SDK_CONFIG = {
+            checkoutBaseUrl: "http://localhost:3000"
+        };
+
+        // Override SDK iframe creation to use correct checkout URL
+        window.addEventListener("DOMContentLoaded", function() {
+            // Wait for SDK to load then override iframe creation
+            setTimeout(function() {
+                if (window.FairsSDK && window.FairsSDK.checkout) {
+                    const originalOpen = window.FairsSDK.checkout.open;
+                    window.FairsSDK.checkout.open = function(data) {
+                        console.log("[LV Override] 🔧 Overriding checkout URL...");
+                        const result = originalOpen.call(this, data);
+                        
+                        // Find and fix iframe src after modal creation
+                        setTimeout(function() {
+                            const iframe = document.querySelector("#fairs-checkout-modal iframe");
+                            if (iframe && iframe.src.includes("localhost:3007")) {
+                                const newSrc = iframe.src.replace("localhost:3007", "localhost:3000");
+                                console.log("[LV Override] 🔄 Redirecting iframe from", iframe.src, "to", newSrc);
+                                iframe.src = newSrc;
+                            }
+                        }, 100);
+                        
+                        return result;
+                    };
+                }
+            }, 1000);
+        });
+                }
+            }, 1000);
+        });
+            checkoutBaseUrl: "http://localhost:3000"
+        };
+    </script>
     <style>
         /* Load Futura font from lv-checkout */
         @font-face {
             font-family: 'Futura';
-            src: url('/lv-checkout/app//assets//assets/fonts/futurabt-light-webfont.woff2') format('woff2'),
-                 url('/lv-checkout/app//assets//assets/fonts/futura-light-bt.ttf') format('truetype');
+            src: url('/assets/fonts/futurabt-light-webfont.woff2') format('woff2'),
+                 url('/assets/fonts/futura-light-bt.ttf') format('truetype');
             font-weight: 300;
             font-style: normal;
             font-display: swap;
@@ -110,7 +147,7 @@
                 </button>
             </div>
             <div class="absolute left-1/2 transform -translate-x-1/2">
-                <img src="/assets//assets/images/louis-vuitton-logo.png" 
+                <img src="/assets/images/louis-vuitton-logo.png" 
                      alt="LOUIS VUITTON" class="lv-logo">
             </div>
             <div class="flex items-center space-x-4">
@@ -153,7 +190,7 @@
                     <div class="border border-gray-200 mb-6">
                         <div class="flex flex-col md:flex-row">
                             <div class="md:w-1/2 bg-white p-0">
-                                <img src="/assets//assets/images/speedy-soft-30-crafty.png"
+                                <img src="/assets/images/speedy-soft-30-crafty.png"
                                      alt="Speedy Soft 30 Crafty" class="product-image">
                             </div>
                             <div class="md:w-1/2 bg-white flex flex-col">
@@ -215,7 +252,7 @@
                     <div class="border border-gray-200 mb-6">
                         <div class="flex flex-col md:flex-row">
                             <div class="md:w-1/2 bg-white p-0">
-                                <img src="/assets//assets/images/monogram-bloom-belted-dress.png"
+                                <img src="/assets/images/monogram-bloom-belted-dress.png"
                                      alt="Monogram Bloom Belted Dress" class="product-image">
                             </div>
                             <div class="md:w-1/2 bg-white flex flex-col">
@@ -311,7 +348,7 @@
                         <!-- Pay with Fairs Button -->
                         <button id="fairs-checkout-button" class="w-full h-12 rounded-none bg-black hover:bg-gray-900 text-white font-normal flex items-center justify-center mb-4">
                             <span class="mr-2">Pay with</span>
-                            <img src="/assets//assets/images/fairs-logo.svg" alt="Fairs" class="fairs-logo" style="filter: brightness(0) invert(1);">
+                            <img src="/assets/images/fairs-logo.svg" alt="Fairs" class="fairs-logo" style="filter: brightness(0) invert(1);">
                         </button>
                     </div>
                 </div>
@@ -445,7 +482,7 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-gray-200 lg:ml-0">
                 <div class="flex items-center mb-4 md:mb-0">
                     <span class="text-xs mr-2">Ship to:</span>
-                    <img src="/assets//assets/images/us-flag.svg" alt="US Flag" style="width: 20px; height: 15px; display: inline-block; margin-right: 8px;">
+                    <img src="/assets/images/us-flag.svg" alt="US Flag" style="width: 20px; height: 15px; display: inline-block; margin-right: 8px;">
                     <span class="text-xs">United States of America</span>
                 </div>
                 <div class="flex flex-wrap gap-x-4 gap-y-2">
@@ -476,7 +513,7 @@
                         quantity: 1,
                         color: 'Monogram Rouge',
                         material: 'Monogram',
-                        image: '/assets//assets/images/speedy-soft-30-crafty.png'
+                        image: '/assets/images/speedy-soft-30-crafty.png'
                     },
                     {
                         id: '1A9H2D',
@@ -485,7 +522,7 @@
                         quantity: 1,
                         color: 'Milky White',
                         size: '34',
-                        image: '/assets//assets/images/monogram-bloom-belted-dress.png'
+                        image: '/assets/images/monogram-bloom-belted-dress.png'
                     }
                 ]
             }
