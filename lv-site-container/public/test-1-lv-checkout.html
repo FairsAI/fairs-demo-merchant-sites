@@ -6,29 +6,7 @@
     <title>Louis Vuitton - Checkout (Production SDK)</title>
     <script src="https://cdn.tailwindcss.com"></script>
             <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js?v=20250619-user-recognition-fix"></script>
-    <script>
-        // Configure SDK for correct checkout routing
-        window.addEventListener("DOMContentLoaded", function() {
-            setTimeout(function() {
-                if (window.FairsSDK && window.FairsSDK.checkout) {
-                    const originalOpen = window.FairsSDK.checkout.open;
-                    window.FairsSDK.checkout.open = function(data) {
-                        console.log("[LV Override] 🔧 Overriding checkout URL...");
-                        const result = originalOpen.call(this, data);
-                        setTimeout(function() {
-                            const iframe = document.querySelector("#fairs-checkout-modal iframe");
-                            if (iframe && iframe.src.includes("localhost:3007")) {
-                                const newSrc = iframe.src.replace("localhost:3007", "localhost:3000");
-                                console.log("[LV Override] 🔄 Redirecting iframe:", newSrc);
-                                iframe.src = newSrc;
-                            }
-                        }, 100);
-                        return result;
-                    };
-                }
-            }, 1000);
-        });
-    </script>
+
     <style>
         /* Load Futura font from lv-checkout */
         @font-face {
