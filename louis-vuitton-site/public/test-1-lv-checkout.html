@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Louis Vuitton - Checkout (Production SDK)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+            <script src="/assets/fairs-sdk-enhanced.js?v=20250619-user-recognition-fix"></script>
+    <style>
+        /* Load Futura font from lv-checkout */
+        @font-face {
+            font-family: 'Futura';
+            src: url('/lv-checkout/app/fonts/futurabt-light-webfont.woff2') format('woff2'),
+                 url('/lv-checkout/app/fonts/futura-light-bt.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Custom fonts and styles with Futura as primary font */
+        body {
+            font-family: 'Futura', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.025em;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* Modal styles for the quick checkout */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Override Fairs SDK modal background */
+        .fairs-modal-overlay,
+        .fairs-checkout-overlay,
+        [class*="fairs"] [class*="overlay"],
+        [class*="modal"] [class*="overlay"],
+        div[style*="background"]:not(.modal-content) {
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Additional fallback overrides */
+        body > div[style*="position: fixed"][style*="z-index"] {
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 425px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .fairs-logo {
+            height: 15px;
+            width: 45px;
+            display: inline-block;
+        }
+
+        /* Enhanced typography with Futura */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Futura', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .lv-logo {
+            height: 24px;
+            width: auto;
+        }
+
+        /* Ensure dropdowns have white backgrounds */
+        select {
+            background-color: white !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <img src="/lv-checkout/public/louis-vuitton-logo.png" 
+                     alt="LOUIS VUITTON" class="lv-logo">
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="p-1 text-xs">Contact Us</button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </button>
+                <button class="p-2 relative">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span class="absolute -top-1 -right-1 bg-black text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">2</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow bg-gray-50">
+        <div class="flex flex-col lg:flex-row">
+            <!-- Left Column - Cart Items -->
+            <div class="lg:w-2/3 bg-gray-50 px-4 pb-12">
+                <div class="max-w-[800px] mx-auto">
+                    <div class="flex items-center justify-between py-6">
+                        <h1 class="text-xl font-normal">
+                            My Shopping Cart <span class="text-sm text-gray-500">(2)</span>
+                        </h1>
+                        <button class="text-sm underline">Continue Shopping</button>
+                    </div>
+
+                    <!-- Cart Item 1: Speedy Soft 30 Crafty -->
+                    <div class="border border-gray-200 mb-6">
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-1/2 bg-white p-0">
+                                <img src="/lv-checkout/public/speedy-soft-30-crafty.png"
+                                     alt="Speedy Soft 30 Crafty" class="product-image">
+                            </div>
+                            <div class="md:w-1/2 bg-white flex flex-col">
+                                <div class="p-6 flex flex-col h-full">
+                                    <div class="mb-6">
+                                        <p class="text-xs text-gray-500 mb-1">M11945</p>
+                                        <div class="flex items-center justify-between">
+                                            <h2 class="text-xl font-normal">Speedy Soft 30 Crafty</h2>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4 border-gray-200">
+
+                                    <div class="space-y-4 mb-6">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Color</span>
+                                            <span class="text-sm font-normal text-right">Monogram Rouge</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Material</span>
+                                            <span class="text-sm font-normal text-right">Monogram</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <select class="w-24 h-12 border border-gray-300 px-2 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </select>
+                                            <span class="text-base font-normal">$3,400.00</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                                Add to Wishlist
+                                            </button>
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Item 2: Monogram Bloom Belted Dress -->
+                    <div class="border border-gray-200 mb-6">
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-1/2 bg-white p-0">
+                                <img src="/lv-checkout/public/monogram-bloom-belted-dress.png"
+                                     alt="Monogram Bloom Belted Dress" class="product-image">
+                            </div>
+                            <div class="md:w-1/2 bg-white flex flex-col">
+                                <div class="p-6 flex flex-col h-full">
+                                    <div class="mb-6">
+                                        <p class="text-xs text-gray-500 mb-1">1A9H2D</p>
+                                        <div class="flex items-center justify-between">
+                                            <h2 class="text-xl font-normal">Monogram Bloom Belted Dress</h2>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4 border-gray-200">
+
+                                    <div class="space-y-4 mb-6">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Color</span>
+                                            <span class="text-sm font-normal text-right">Milky White</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Size</span>
+                                            <span class="text-sm font-normal text-right">34</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <select class="w-24 h-12 border border-gray-300 px-2 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </select>
+                                            <span class="text-base font-normal">$4,400.00</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                                Add to Wishlist
+                                            </button>
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="lg:w-1/3 bg-white lg:min-h-screen">
+                <div class="p-6">
+                    <h2 class="text-lg font-normal mb-4">Order Summary</h2>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm">Subtotal</span>
+                            <span class="text-sm font-normal">$7,800.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm">Shipping</span>
+                            <span class="text-sm font-normal">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm">Tax</span>
+                            <span class="text-sm font-normal">$0.00</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Will be calculated according to your delivery address</p>
+                    </div>
+
+                    <hr class="my-4 border-gray-200">
+
+                    <div class="flex justify-between mb-6">
+                        <span class="text-base font-normal">Total</span>
+                        <span class="text-base font-normal">$7,800.00</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button id="proceed-to-checkout-button" class="w-full h-12 rounded-none border border-gray-300 text-black font-normal flex items-center justify-center bg-white hover:bg-gray-50">
+                            <span class="flex items-center">Proceed to Checkout</span>
+                        </button>
+                        
+                        <!-- Pay with Fairs Button -->
+                        <button id="fairs-checkout-button" class="w-full h-12 rounded-none bg-black hover:bg-gray-900 text-white font-normal flex items-center justify-center mb-4">
+                            <span class="mr-2">Pay with</span>
+                            <img src="/lv-checkout/public/fairs-logo.svg" alt="Fairs" class="fairs-logo" style="filter: brightness(0) invert(1);">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Service Information -->
+                <div class="border-t border-gray-200">
+                    <div class="py-6 px-6 flex items-start">
+                        <div class="mr-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="h-3 w-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                <line x1="1" y1="10" x2="23" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-normal mb-1">Payment</h3>
+                            <p class="text-xs text-gray-500">Credit card, debit card, PayPal, or Apple Pay</p>
+                        </div>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="py-6 px-6 flex items-start border-t border-gray-200">
+                        <div class="mr-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="h-3 w-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="1" y="3" width="15" height="13"></rect>
+                                <path d="m16 8 2 2-2 2"></path>
+                                <path d="m21 12H7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-normal mb-1">Shipping & Delivery</h3>
+                            <p class="text-xs text-gray-500">Complimentary Standard Delivery</p>
+                        </div>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="py-6 px-6 flex items-start border-t border-gray-200">
+                        <div class="mr-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="h-3 w-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                                <path d="M21 3v5h-5"></path>
+                                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                                <path d="M3 21v-5h5"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-normal mb-1">Returns & Exchanges</h3>
+                            <p class="text-xs text-gray-500">Complimentary</p>
+                        </div>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="py-6 px-6 flex items-start border-t border-gray-200">
+                        <div class="mr-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="h-3 w-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-normal mb-1">Next Day Collect-In-Store</h3>
+                            <p class="text-xs text-gray-500"></p>
+                        </div>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+
+                    <div class="py-6 px-6 flex items-start border-t border-gray-200">
+                        <div class="mr-4 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            <svg class="h-3 w-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <polyline points="20,6 9,17 4,12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-normal mb-1">Gifting</h3>
+                            <p class="text-xs text-gray-500">Discover all the details behind the perfect gift</p>
+                        </div>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8 mt-12">
+        <div class="max-w-[1200px] mx-auto px-4 lg:pl-4 lg:pr-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 lg:ml-0">
+                <div>
+                    <h3 class="text-sm font-normal mb-4">HELP</h3>
+                    <ul class="space-y-2">
+                        <li class="text-xs">
+                            Our Client Advisors are available to assist you by phone at +1-866-VUITTON, or you may also chat with us.
+                        </li>
+                        <li class="text-xs underline">FAQs</li>
+                        <li class="text-xs underline">Product Care</li>
+                        <li class="text-xs underline">Stores</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-normal mb-4">SERVICES</h3>
+                    <ul class="space-y-2">
+                        <li class="text-xs underline">Repairs</li>
+                        <li class="text-xs underline">Personalization</li>
+                        <li class="text-xs underline">Art of Gifting</li>
+                        <li class="text-xs underline">Download our Apps</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-normal mb-4">ABOUT LOUIS VUITTON</h3>
+                    <ul class="space-y-2">
+                        <li class="text-xs underline">Fashion Shows</li>
+                        <li class="text-xs underline">Arts & Culture</li>
+                        <li class="text-xs underline">La Maison</li>
+                        <li class="text-xs underline">Sustainability</li>
+                        <li class="text-xs underline">Latest News</li>
+                        <li class="text-xs underline">Careers</li>
+                        <li class="text-xs underline">Foundation Louis Vuitton</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 border-t border-gray-200 lg:ml-0">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <span class="text-xs mr-2">Ship to:</span>
+                    <img src="/lv-checkout/public/us-flag.svg" alt="US Flag" style="width: 20px; height: 15px; display: inline-block; margin-right: 8px;">
+                    <span class="text-xs">United States of America</span>
+                </div>
+                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                    <span class="text-xs">Sitemap</span>
+                    <span class="text-xs">Legal Notices</span>
+                    <span class="text-xs">Privacy Policy</span>
+                    <span class="text-xs">California Supply Chains Act</span>
+                    <span class="text-xs">Do Not Sell or Share My Personal Information</span>
+                    <span class="text-xs">Accessibility</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 🎯 PRODUCTION LOUIS VUITTON INTEGRATION - ENHANCED SDK
+        // Enhanced SDK auto-initializes and is available as window.FairsSDK
+        
+        // Test data for LV checkout
+        const TEST_DATA = {
+            cart: {
+                total: 780000, // $7,800.00 in cents
+                items: [
+                    {
+                        id: 'M11945',
+                        name: 'Speedy Soft 30 Crafty',
+                        price: 340000, // $3,400.00 in cents
+                        quantity: 1,
+                        color: 'Monogram Rouge',
+                        material: 'Monogram',
+                        image: '/lv-checkout/public/speedy-soft-30-crafty.png'
+                    },
+                    {
+                        id: '1A9H2D',
+                        name: 'Monogram Bloom Belted Dress',
+                        price: 440000, // $4,400.00 in cents
+                        quantity: 1,
+                        color: 'Milky White',
+                        size: '34',
+                        image: '/lv-checkout/public/monogram-bloom-belted-dress.png'
+                    }
+                ]
+            }
+        };
+
+        // Expose cart data for extraction
+        window.cartData = TEST_DATA.cart;
+        window.cart = TEST_DATA.cart;
+
+        // Add event handler for Pay with Fairs button
+        document.getElementById('fairs-checkout-button').addEventListener('click', async function() {
+            // Open Fairs checkout modal
+            console.log('[LV Test] 🚀 Opening enhanced SDK checkout...');
+            
+            // Debug: Check SDK availability
+            console.log('[LV Test] 🔍 window.FairsSDK:', !!window.FairsSDK);
+            console.log('[LV Test] 🔍 window.FairsSDK.checkout:', !!window.FairsSDK?.checkout);
+            console.log('[LV Test] 🔍 window.FairsSDK.checkout.open:', typeof window.FairsSDK?.checkout?.open);
+            
+            try {
+                // Ensure SDK is ready
+                if (!window.FairsSDK) {
+                    throw new Error('FairsSDK not available');
+                }
+                
+                if (!window.FairsSDK.checkout) {
+                    throw new Error('FairsSDK.checkout not available');
+                }
+                
+                if (typeof window.FairsSDK.checkout.open !== 'function') {
+                    throw new Error('FairsSDK.checkout.open is not a function');
+                }
+                
+                // Format checkout data for enhanced SDK
+                const checkoutData = {
+                    order: {
+                        total: TEST_DATA.cart.total, // Already in cents
+                        currency: 'USD',
+                        items: TEST_DATA.cart.items // Already in cents
+                    },
+                    customer: {
+                        email: 'test@louisvuitton.com',
+                        phone: '+1-555-0123'
+                    },
+                    onSuccess: function(result) {
+                        console.log('[LV Test] ✅ Payment successful:', result);
+                        if (result.completed) {
+                            alert(`🎉 Order completed successfully!\nThank you for your purchase of $${(TEST_DATA.cart.total / 100).toFixed(2)}`);
+                        } else {
+                            alert(`🎉 Payment successful!\nTransaction ID: ${result.transactionId}\nAmount: $${result.amount || (TEST_DATA.cart.total / 100).toFixed(2)}`);
+                        }
+                    },
+                    onCancel: function() {
+                        console.log('[LV Test] ❌ Payment cancelled');
+                    },
+                    onError: function(error) {
+                        console.log('[LV Test] 💥 Payment error:', error);
+                        alert('Payment failed. Please try again.');
+                    },
+                    onPopupOpen: function() {
+                        console.log('[LV Test] 📦 Modal opened');
+                    },
+                    onClose: function(reason) {
+                        console.log('[LV Test] 🚪 Modal closed:', reason);
+                    }
+                };
+
+                // Use the enhanced SDK's checkout functionality
+                const modal = window.FairsSDK.checkout.open(checkoutData);
+                console.log('[LV Test] 📋 Modal created:', !!modal);
+            } catch (error) {
+                console.error('[LV Test] ❌ Error opening checkout:', error);
+                alert('Error opening checkout: ' + error.message);
+            }
+        });
+
+        // Add event handler for Proceed to Checkout button  
+        document.getElementById('proceed-to-checkout-button').addEventListener('click', function() {
+            console.log('[LV Checkout] Proceed to Checkout button clicked');
+            // Redirect to the main checkout form page
+            window.location.href = '/lv-checkout-form.html';
+        });
+
+        console.log('[LV Checkout] 🚀 Enhanced SDK loaded with cart total: $' + (TEST_DATA.cart.total / 100).toFixed(2));
+        console.log('[LV Checkout] 📧 Enhanced SDK automatically monitoring for user recognition');
+        console.log('[LV Checkout] 🔘 Enhanced SDK automatically attached to checkout button');
+
+        // Debug: Test absolute URL conversion
+        function testAbsoluteURLConversion() {
+            console.log('[LV Checkout] 🔍 Testing absolute URL conversion...');
+            
+            // Test the cart data image URLs
+            TEST_DATA.cart.items.forEach((item, index) => {
+                console.log(`[LV Checkout] Item ${index + 1}: ${item.name}`);
+                console.log(`[LV Checkout] Original image URL: ${item.image}`);
+                
+                // Simulate the absolute URL conversion that should happen in extractors
+                const absoluteUrl = item.image.startsWith('http') ? 
+                    item.image : 
+                    `${window.location.origin}${item.image}`;
+                    
+                console.log(`[LV Checkout] Expected absolute URL: ${absoluteUrl}`);
+            });
+        }
+
+        // Run the test after a short delay
+        setTimeout(testAbsoluteURLConversion, 1000);
+
+        // Add manual cart extraction test
+        window.testCartExtraction = async function() {
+            console.log('[LV Checkout] 🧪 Manual cart extraction test...');
+            
+            try {
+                // Enhanced SDK handles cart extraction automatically
+                console.log('[LV Checkout] ✅ Enhanced SDK cart data:', TEST_DATA.cart);
+                
+                if (TEST_DATA.cart && TEST_DATA.cart.items) {
+                    TEST_DATA.cart.items.forEach((item, index) => {
+                        console.log(`[LV Checkout] Item ${index + 1}:`, {
+                            name: item.name,
+                            price: (item.price / 100).toFixed(2), // Convert to dollars for display
+                            image: item.image,
+                            imageType: item.image ? (item.image.startsWith('http') ? 'absolute' : 'relative') : 'none'
+                        });
+                    });
+                    
+                    // Track successful extraction
+                    if (window.FairsSDK && window.FairsSDK.trackAnalytics) {
+                        window.FairsSDK.trackAnalytics('manual_extraction_test', {
+                            itemCount: TEST_DATA.cart.items.length,
+                            totalAmount: TEST_DATA.cart.total / 100 // Convert to dollars for display
+                        });
+                    }
+                } else {
+                    console.log('[LV Checkout] ❌ No cart data available');
+                }
+            } catch (error) {
+                console.error('[LV Checkout] ❌ Manual extraction failed:', error);
+            }
+        };
+
+        // Add button to trigger manual test
+        const testButton = document.createElement('button');
+        testButton.textContent = 'Test Enhanced SDK';
+        testButton.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        testButton.onclick = window.testCartExtraction;
+        document.body.appendChild(testButton);
+    </script>
+</body>
+</html> 
