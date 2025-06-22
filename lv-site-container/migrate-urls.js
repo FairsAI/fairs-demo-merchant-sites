@@ -10,7 +10,10 @@ function updateAssetUrls(filePath) {
 
     // Track all replacements
     const replacements = [
-        // Image paths
+        // MAIN IMAGE PATH FIXES - Most important!
+        { from: /\/lv-checkout\/public\//g, to: '/assets/images/', desc: 'LV checkout public paths' },
+        
+        // Additional image paths
         { from: /\/lv-checkout\/public\/images\//g, to: '/assets/images/', desc: 'LV checkout images' },
         { from: /images\//g, to: '/assets/images/', desc: 'Relative images' },
         { from: /\.\.\/images\//g, to: '/assets/images/', desc: 'Parent images' },
