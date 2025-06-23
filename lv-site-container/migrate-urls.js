@@ -8,19 +8,21 @@ function updateAssetUrls(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let changes = 0;
 
-    // Track all replacements
+    // Track all replacements - order matters to avoid double replacements
     const replacements = [
-        // MAIN IMAGE PATH FIXES - Most important!
+        // MAIN IMAGE PATH FIXES - Most important and specific first!
+        { from: /\/lv-checkout\/public\/images\//g, to: '/assets/images/', desc: 'LV checkout images' },
+        { from: /\/lv-checkout\/public\/fonts\//g, to: '/assets/fonts/', desc: 'LV checkout fonts' },
         { from: /\/lv-checkout\/public\//g, to: '/assets/images/', desc: 'LV checkout public paths' },
         
-        // Additional image paths
-        { from: /\/lv-checkout\/public\/images\//g, to: '/assets/images/', desc: 'LV checkout images' },
-        { from: /images\//g, to: '/assets/images/', desc: 'Relative images' },
+        // Additional image paths - more specific patterns to avoid double replacement
+        { from: /src=['"]images\//g, to: 'src="/assets/images/', desc: 'Relative images in src attributes' },
+        { from: /url\(['"]images\//g, to: 'url(\'/assets/images/', desc: 'Relative images in CSS url()' },
         { from: /\.\.\/images\//g, to: '/assets/images/', desc: 'Parent images' },
         
-        // Font paths  
-        { from: /\/lv-checkout\/public\/fonts\//g, to: '/assets/fonts/', desc: 'LV checkout fonts' },
-        { from: /fonts\//g, to: '/assets/fonts/', desc: 'Relative fonts' },
+        // Font paths - more specific patterns to avoid double replacement  
+        { from: /src=['"]fonts\//g, to: 'src="/assets/fonts/', desc: 'Relative fonts in src attributes' },
+        { from: /url\(['"]fonts\//g, to: 'url(\'/assets/fonts/', desc: 'Relative fonts in CSS url()' },
         { from: /\.\.\/fonts\//g, to: '/assets/fonts/', desc: 'Parent fonts' },
         
         // Payment icons from shared assets
@@ -47,6 +49,15 @@ function updateAssetUrls(filePath) {
             changes += replaced;
         }
     });
+
+    // Final cleanup - fix any double slashes that might have been created
+    const doubleSlashPattern = /\/assets\/\/assets\//g;
+    const doubleSlashMatches = (content.match(doubleSlashPattern) || []).length;
+    if (doubleSlashMatches > 0) {
+        content = content.replace(doubleSlashPattern, '/assets/');
+        console.log(`   🔧 Fixed ${doubleSlashMatches} double asset paths`);
+        changes += doubleSlashMatches;
+    }
 
     // Write updated content back
     fs.writeFileSync(filePath, content, 'utf8');

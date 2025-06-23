@@ -38,6 +38,7 @@ app.get('/', (req, res) => {
                     <li><a href="/test-checkout">🛍️ Product Cart (Test Page)</a></li>
                     <li><a href="/lv-checkout-form-enhanced">💳 Enhanced Checkout Form</a></li>
                     <li><a href="/lv-checkout-form">📝 Standard Checkout Form</a></li>
+                    <li><a href="/debug-checkout">🔍 Debug Checkout Modal</a></li>
                 </ul>
             </div>
         </body>
@@ -58,6 +59,11 @@ app.get('/lv-checkout-form-enhanced', (req, res) => {
 // Standard checkout form
 app.get('/lv-checkout-form', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'lv-checkout-form.html'));
+});
+
+// Debug checkout modal page
+app.get('/debug-checkout', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'debug-checkout.html'));
 });
 
 // Legacy route support (for any old links)
@@ -83,7 +89,8 @@ app.get('/health', (req, res) => {
             '/': 'Landing page',
             '/test-checkout': 'Product cart page',
             '/lv-checkout-form-enhanced': 'Enhanced checkout form',
-            '/lv-checkout-form': 'Standard checkout form'
+            '/lv-checkout-form': 'Standard checkout form',
+            '/debug-checkout': 'Debug checkout modal'
         }
     });
 });
