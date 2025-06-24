@@ -533,11 +533,7 @@
                     },
                     onSuccess: function(result) {
                         console.log('[LV Test] ✅ Payment successful:', result);
-                        if (result.completed) {
-                            alert(`🎉 Order completed successfully!\nThank you for your purchase of $${(TEST_DATA.cart.total / 100).toFixed(2)}`);
-                        } else {
-                            alert(`🎉 Payment successful!\nTransaction ID: ${result.transactionId}\nAmount: $${result.amount || (TEST_DATA.cart.total / 100).toFixed(2)}`);
-                        }
+                        // Removed alert popup - completion is handled by the checkout flow UI
                     },
                     onCancel: function() {
                         console.log('[LV Test] ❌ Payment cancelled');
