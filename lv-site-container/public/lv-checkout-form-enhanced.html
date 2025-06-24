@@ -727,10 +727,10 @@
     </div>
 
     <!-- Enhanced Fairs SDK - Production Ready SDK! -->
-    <script src="/fairs-checkout-sdk.js"></script>
+    <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js?v=20250623-complete-endpoint-fix"></script>
     <script>
         // 🎯 COMPLETE LOUIS VUITTON INTEGRATION - NEW PRODUCTION SDK
-        const fairsSDK = FairsCheckoutSDK.createModal({
+        const fairsSDK = FairsSDK.checkout.createModal({
             // No baseUrl specified - will use window.location.origin (platform proxy)
             mode: 'modal',
             autoResize: true,
