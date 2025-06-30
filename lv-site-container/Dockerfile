@@ -27,9 +27,9 @@ USER nextjs
 # Expose port
 EXPOSE 3007
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3007/health || exit 1
+# Health check (using node with IPv4)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "const http = require('http'); http.get({hostname: '127.0.0.1', port: 3007, path: '/health', family: 4}, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
 # Start server
 CMD ["npm", "start"] 
