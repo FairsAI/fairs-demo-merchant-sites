@@ -513,7 +513,8 @@
 
         // Checkout button handlers
         document.getElementById('regular-checkout').addEventListener('click', () => {
-            alert('Regular checkout - redirecting to standard checkout flow...');
+            // Alert removed for smoother user experience
+                console.log('Regular checkout - redirecting to standard checkout flow...');
         });
 
         document.getElementById('fairs-checkout').addEventListener('click', async () => {
@@ -553,10 +554,12 @@
                 } catch (error) {
                     updateStatus('✗ Checkout Failed', true);
                     console.error('FAIRS checkout failed:', error);
-                    alert(`FAIRS checkout failed: ${error.message}`);
+                    // Alert removed for smoother user experience
+                console.log(`FAIRS checkout failed: ${error.message}`);
                 }
             } else {
-                alert('FAIRS SDK not loaded. Please refresh and try again.');
+                // Alert removed for smoother user experience
+                console.log('FAIRS SDK not loaded. Please refresh and try again.');
             }
         });
 

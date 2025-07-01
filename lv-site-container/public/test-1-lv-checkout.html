@@ -534,9 +534,9 @@
                     onSuccess: function(result) {
                         console.log('[LV Test] ✅ Payment successful:', result);
                         if (result.completed) {
-                            alert(`🎉 Order completed successfully!\nThank you for your purchase of $${(TEST_DATA.cart.total / 100).toFixed(2)}`);
+                            // Alert removed for smoother user experience
                         } else {
-                            alert(`🎉 Payment successful!\nTransaction ID: ${result.transactionId}\nAmount: $${result.amount || (TEST_DATA.cart.total / 100).toFixed(2)}`);
+                            // Alert removed for smoother user experience
                         }
                     },
                     onCancel: function() {
@@ -544,7 +544,7 @@
                     },
                     onError: function(error) {
                         console.log('[LV Test] 💥 Payment error:', error);
-                        alert('Payment failed. Please try again.');
+                        // Alert removed for smoother user experience
                     },
                     onPopupOpen: function() {
                         console.log('[LV Test] 📦 Modal opened');
@@ -559,7 +559,7 @@
                 console.log('[LV Test] 📋 Modal created:', !!modal);
             } catch (error) {
                 console.error('[LV Test] ❌ Error opening checkout:', error);
-                alert('Error opening checkout: ' + error.message);
+                // Alert removed for smoother user experience
             }
         });
 

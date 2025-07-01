@@ -890,14 +890,14 @@
                             customer: customerData,
                             onSuccess: function(result) {
                                 console.log('[LV Checkout Form] ✅ Payment successful:', result);
-                                alert(`🎉 Payment successful! \nTransaction ID: ${result.transactionId}\nAmount: $${result.amount}`);
+                                // Alert removed for smoother user experience
                             },
                             onCancel: function() {
                                 console.log('[LV Checkout Form] ❌ Payment cancelled');
                             },
                             onError: function(error) {
                                 console.log('[LV Checkout Form] 💥 Payment error:', error);
-                                alert('Payment failed. Please try again.');
+                                // Alert removed for smoother user experience
                             },
                             onPopupOpen: function() {
                                 console.log('[LV Checkout Form] 📦 Modal opened');
@@ -921,7 +921,8 @@
                         console.log('[LV Checkout Form] 📋 Modal created:', !!modal);
                     } catch (error) {
                         console.error('[LV Checkout Form] ❌ Error opening checkout:', error);
-                        alert('Error opening checkout: ' + error.message);
+                        // Alert removed for smoother user experience
+                console.log('Error opening checkout: ' + error.message);
                     }
                 });
             } else {
@@ -998,7 +999,7 @@
                             if (accountCreated) {
                                 // Show success message with Fairs account
                                 setTimeout(() => {
-                                    alert(`🎉 Order completed successfully! \n\n` +
+                                    // Alert removed for smoother user experience
                                           `Order #: ${orderNumber}\n` +
                                           `Total: $${TEST_DATA.cart.total.toFixed(2)}\n\n` +
                                           `✅ You've been enrolled in Fairs Express Checkout!\n` +
@@ -1009,7 +1010,7 @@
                             } else {
                                 // Account creation failed, but complete order anyway
                                 setTimeout(() => {
-                                    alert(`🎉 Order completed successfully! \n\n` +
+                                    // Alert removed for smoother user experience
                                           `Order #: ${orderNumber}\n` +
                                           `Total: $${TEST_DATA.cart.total.toFixed(2)}\n\n` +
                                           `⚠️ Fairs account creation was unsuccessful, but your order is confirmed.`);
@@ -1023,7 +1024,7 @@
                             // Complete order even if account creation fails
                             const orderNumber = `LV-${Math.floor(Math.random() * 1000000)}`;
                             setTimeout(() => {
-                                alert(`🎉 Order completed successfully! \n\n` +
+                                // Alert removed for smoother user experience
                                       `Order #: ${orderNumber}\n` +
                                       `Total: $${TEST_DATA.cart.total.toFixed(2)}\n\n` +
                                       `⚠️ There was an issue setting up your Fairs account, but your order is confirmed.`);
@@ -1034,10 +1035,11 @@
                     } else {
                         // Complete order without Fairs account creation
                         const orderNumber = `LV-${Math.floor(Math.random() * 1000000)}`;
-                        alert(`🎉 Order completed successfully! \n\n` +
+                        // Alert removed for smoother user experience
                               `Order #: ${orderNumber}\n` +
                               `Total: $${TEST_DATA.cart.total.toFixed(2)}\n\n` +
-                              `Thank you for your purchase!`);
+                        // Alert removed for smoother user experience
+                        console.log(`Order completed successfully! Order: ${orderNumber}, Total: $${TEST_DATA.cart.total.toFixed(2)}, Thank you for your purchase!`);
                         
                         console.log('[LV Checkout Form] ✅ Order completed without Fairs opt-in');
                     }
