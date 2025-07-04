@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Louis Vuitton - Clean Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js"></script>
+    <style>
+        /* Load Futura font */
+        @font-face {
+            font-family: 'Futura';
+            src: url('/assets/fonts/futurabt-light-webfont.woff2') format('woff2'),
+                 url('/assets/fonts/futura-light-bt.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Custom fonts and styles with Futura as primary font */
+        body {
+            font-family: 'Futura', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.025em;
+            background-color: #f9f9f9;
+        }
+
+        /* Enhanced typography with Futura */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Futura', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .lv-logo {
+            height: 24px;
+            width: auto;
+        }
+
+        /* Form field styling */
+        .form-field {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 14px;
+            background-color: white;
+            transition: border-color 0.2s;
+        }
+
+        .form-field:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        /* Ensure dropdowns have white backgrounds */
+        select {
+            background-color: white !important;
+            height: 46px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        .fairs-logo {
+            height: 15px;
+            width: 45px;
+            display: inline-block;
+        }
+
+        /* NO MODAL BACKDROP OVERRIDE NEEDED - SDK now defaults to light! */
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center"></div>
+            
+            <!-- Center - Logo -->
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <img src="/assets/images/louis-vuitton-logo.png" 
+                     alt="LOUIS VUITTON" class="lv-logo">
+            </div>
+            
+            <!-- Right Side -->
+            <div class="flex items-center space-x-6 text-sm">
+                <div class="flex items-center">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>Secure Payment</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                    <span>Call us at 1.866</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow bg-gray-50">
+        <div class="flex flex-col lg:flex-row">
+            <!-- Left Column - Checkout Form -->
+            <div class="lg:w-2/3 bg-gray-50 px-4 pb-12">
+                <div class="max-w-[800px] mx-auto">
+                    <form id="checkout-form" class="space-y-8 py-8">
+                        
+                        <!-- Contact Section -->
+                        <div>
+                            <h2 class="text-xl font-normal mb-6">Contact</h2>
+                            <div class="mb-4">
+                                <input type="email" id="email" name="email" 
+                                       placeholder="Email" 
+                                       class="form-field w-full" required>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="email-offers" name="email-offers" class="mr-2">
+                                <label for="email-offers" class="text-sm">Email me with news and offers</label>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Section -->
+                        <div>
+                            <h2 class="text-xl font-normal mb-6">Delivery</h2>
+                            
+                            <div class="mb-4">
+                                <select name="country" class="form-field w-full">
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <input type="text" name="firstName" 
+                                           placeholder="First name" 
+                                           class="form-field w-full" required>
+                                </div>
+                                <div>
+                                    <input type="text" name="lastName" 
+                                           placeholder="Last name" 
+                                           class="form-field w-full" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <input type="text" name="address" 
+                                       placeholder="Address" 
+                                       class="form-field w-full" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <input type="text" name="apartment" 
+                                       placeholder="Apartment, suite, etc. (optional)" 
+                                       class="form-field w-full">
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <input type="text" name="city" 
+                                           placeholder="City" 
+                                           class="form-field w-full" required>
+                                </div>
+                                <div>
+                                    <select name="state" class="form-field w-full">
+                                        <option value="NY">New York</option>
+                                        <option value="CA">California</option>
+                                        <option value="TX">Texas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" name="zip" 
+                                           placeholder="Postal code" 
+                                           class="form-field w-full" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <input type="tel" name="phone" 
+                                       placeholder="Phone (optional)" 
+                                       class="form-field w-full">
+                            </div>
+                        </div>
+
+                        <!-- Shipping Method Section -->
+                        <div>
+                            <h2 class="text-xl font-normal mb-6">Shipping method</h2>
+                            <div class="border border-gray-200 rounded-lg mb-4">
+                                <div class="p-4 bg-gray-50">
+                                    <label class="flex items-center justify-between cursor-pointer">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="shipping-method" value="standard" checked class="mr-3">
+                                            <span class="font-medium text-sm">STANDARD GROUND (5-7 Business Days)</span>
+                                        </div>
+                                        <span class="text-sm font-medium">$10.00</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Section -->
+                        <div>
+                            <h2 class="text-xl font-normal mb-3">Payment</h2>
+                            
+                            <!-- Payment Buttons -->
+                            <div class="space-y-3">
+                                <!-- Pay with Fairs Button -->
+                                <button type="button" id="fairs-checkout-button" class="w-full h-12 rounded-none bg-black hover:bg-gray-900 text-white font-normal flex items-center justify-center mb-4">
+                                    <span class="mr-2">Pay with</span>
+                                    <img src="/assets/images/fairs-logo.svg" alt="Fairs" class="fairs-logo" style="filter: brightness(0) invert(1);">
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="lg:w-1/3 bg-white px-6 py-8">
+                <div class="sticky top-24">
+                    <!-- Product Items -->
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="relative">
+                                                                 <img src="/assets/images/speedy-soft-30-crafty.png" alt="Speedy Soft 30 Crafty" class="w-16 h-16 object-cover rounded">
+                                <span class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">1</span>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-sm font-normal">Speedy Soft 30 Crafty</h3>
+                                <p class="text-xs text-gray-500">Monogram Rouge</p>
+                            </div>
+                            <span class="text-sm">$3,400.00</span>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="relative">
+                                                                 <img src="/assets/images/monogram-bloom-belted-dress.png" alt="Monogram Bloom Belted Dress" class="w-16 h-16 object-cover rounded">
+                                <span class="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">1</span>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-sm font-normal">Monogram Bloom Belted Dress</h3>
+                                <p class="text-xs text-gray-500">Milky White, Size 34</p>
+                            </div>
+                            <span class="text-sm">$4,400.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Subtotal</span>
+                            <span>$7,800.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Shipping</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-4">
+                            <span>Tax</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="flex justify-between text-lg font-medium">
+                                <span>Total</span>
+                                <span>$7,800.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CLEAN JAVASCRIPT - Only Essential Code -->
+    <script>
+        // Cart data for checkout
+        const TEST_DATA = {
+            cart: {
+                total: 7800.00,
+                items: [
+                    {
+                        id: 'M11945',
+                        name: 'Speedy Soft 30 Crafty',
+                        price: 3400.00,
+                        quantity: 1,
+                        color: 'Monogram Rouge',
+                        material: 'Monogram'
+                    },
+                    {
+                        id: '1A9H2D',
+                        name: 'Monogram Bloom Belted Dress',
+                        price: 4400.00,
+                        quantity: 1,
+                        color: 'Milky White',
+                        size: '34'
+                    }
+                ]
+            }
+        };
+
+        // Initialize SDK for automatic user recognition
+        window.FairsSDK.init();
+        
+        // Single checkout handler - this is all that's needed!
+        document.getElementById('fairs-checkout-button').addEventListener('click', function() {
+            console.log('[Clean LV] Opening Fairs checkout...');
+            
+            window.FairsSDK.checkout.open({
+                order: {
+                    id: `lv_clean_${Date.now()}`,
+                    total: TEST_DATA.cart.total,
+                    currency: 'USD',
+                    items: TEST_DATA.cart.items
+                },
+                onSuccess: function(result) {
+                    console.log('[Clean LV] ✅ Payment successful:', result);
+                },
+                onCancel: function() {
+                    console.log('[Clean LV] ❌ Payment cancelled');
+                }
+            });
+        });
+
+        // Demo comparison info
+        console.log('🎯 CLEAN LV INTEGRATION DEMO');
+        console.log('📊 Code comparison: ~25 lines (Clean) vs 370+ lines (Original)');
+        console.log('✅ SDK handles user recognition automatically');
+        console.log('✅ Light modal backdrop by default');
+        console.log('✅ Zero manual SDK duplication');
+        console.log('🧪 Test with: woosh@woosh.com (existing user) or any new email');
+    </script>
+</body>
+</html> 

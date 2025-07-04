@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Louis Vuitton - Cart (Clean Integration)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js"></script>
+    <style>
+        /* Load Futura font */
+        @font-face {
+            font-family: 'Futura';
+            src: url('/assets/fonts/futurabt-light-webfont.woff2') format('woff2'),
+                 url('/assets/fonts/futura-light-bt.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Custom fonts and styles with Futura as primary font */
+        body {
+            font-family: 'Futura', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.025em;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .fairs-logo {
+            height: 15px;
+            width: 45px;
+            display: inline-block;
+        }
+
+        /* Enhanced typography with Futura */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Futura', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .lv-logo {
+            height: 24px;
+            width: auto;
+        }
+
+        /* Ensure dropdowns have white backgrounds */
+        select {
+            background-color: white !important;
+        }
+
+        /* NO MODAL BACKDROP OVERRIDE NEEDED - SDK now defaults to light! */
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                <img src="/assets/images/louis-vuitton-logo.png" 
+                     alt="LOUIS VUITTON" class="lv-logo">
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="p-1 text-xs">Contact Us</button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                </button>
+                <button class="p-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </button>
+                <button class="p-2 relative">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    <span class="absolute -top-1 -right-1 bg-black text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">2</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow bg-gray-50">
+        <div class="flex flex-col lg:flex-row">
+            <!-- Left Column - Cart Items -->
+            <div class="lg:w-2/3 bg-gray-50 px-4 pb-12">
+                <div class="max-w-[800px] mx-auto">
+                    <div class="flex items-center justify-between py-6">
+                        <h1 class="text-xl font-normal">
+                            My Shopping Cart <span class="text-sm text-gray-500">(2)</span>
+                        </h1>
+                        <button class="text-sm underline">Continue Shopping</button>
+                    </div>
+
+                    <!-- Cart Item 1: Speedy Soft 30 Crafty -->
+                    <div class="border border-gray-200 mb-6">
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-1/2 bg-white p-0">
+                                <img src="/assets/images/speedy-soft-30-crafty.png"
+                                     alt="Speedy Soft 30 Crafty" class="product-image">
+                            </div>
+                            <div class="md:w-1/2 bg-white flex flex-col">
+                                <div class="p-6 flex flex-col h-full">
+                                    <div class="mb-6">
+                                        <p class="text-xs text-gray-500 mb-1">M11945</p>
+                                        <div class="flex items-center justify-between">
+                                            <h2 class="text-xl font-normal">Speedy Soft 30 Crafty</h2>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4 border-gray-200">
+
+                                    <div class="space-y-4 mb-6">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Color</span>
+                                            <span class="text-sm font-normal text-right">Monogram Rouge</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Material</span>
+                                            <span class="text-sm font-normal text-right">Monogram</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <select class="w-24 h-12 border border-gray-300 px-2 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </select>
+                                            <span class="text-base font-normal">$3,400.00</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                                Add to Wishlist
+                                            </button>
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Item 2: Monogram Bloom Belted Dress -->
+                    <div class="border border-gray-200 mb-6">
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-1/2 bg-white p-0">
+                                <img src="/assets/images/monogram-bloom-belted-dress.png"
+                                     alt="Monogram Bloom Belted Dress" class="product-image">
+                            </div>
+                            <div class="md:w-1/2 bg-white flex flex-col">
+                                <div class="p-6 flex flex-col h-full">
+                                    <div class="mb-6">
+                                        <p class="text-xs text-gray-500 mb-1">1A9H2D</p>
+                                        <div class="flex items-center justify-between">
+                                            <h2 class="text-xl font-normal">Monogram Bloom Belted Dress</h2>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4 border-gray-200">
+
+                                    <div class="space-y-4 mb-6">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Color</span>
+                                            <span class="text-sm font-normal text-right">Milky White</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm font-normal">Size</span>
+                                            <span class="text-sm font-normal text-right">34</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <select class="w-24 h-12 border border-gray-300 px-2 rounded">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                            </select>
+                                            <span class="text-base font-normal">$4,400.00</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                                </svg>
+                                                Add to Wishlist
+                                            </button>
+                                            <button class="flex items-center justify-center py-3 text-sm border border-gray-200">
+                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="lg:w-1/3 bg-white px-6 py-8">
+                <div class="sticky top-24">
+                    <h2 class="text-xl font-normal mb-6">Order Summary</h2>
+                    
+                    <!-- Summary -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-sm">Subtotal (2 items)</span>
+                            <span class="text-sm">$7,800.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm">Shipping</span>
+                            <span class="text-sm">Free</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm">Estimated Tax</span>
+                            <span class="text-sm">$0.00</span>
+                        </div>
+                        <hr class="border-gray-200">
+                        <div class="flex justify-between font-medium">
+                            <span class="text-base">Total</span>
+                            <span class="text-base">$7,800.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-4 mt-8">
+                        <!-- Pay with Fairs Button -->
+                        <button id="fairs-checkout-button" class="w-full h-12 rounded-none bg-black hover:bg-gray-900 text-white font-normal flex items-center justify-center">
+                            <span class="mr-2">Pay with</span>
+                            <img src="/assets/images/fairs-logo.svg" alt="Fairs" class="fairs-logo" style="filter: brightness(0) invert(1);">
+                        </button>
+                        
+                        <!-- Traditional Checkout Button -->
+                        <button id="proceed-to-checkout-button" class="w-full h-12 rounded-none bg-white border border-black text-black font-normal hover:bg-gray-50">
+                            Proceed to Checkout
+                        </button>
+                    </div>
+
+                    <!-- Secure Payment Notice -->
+                    <div class="flex items-center justify-center mt-6 text-xs text-gray-500">
+                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Secure Payment Protected
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h3 class="text-sm font-normal mb-4">LOUIS VUITTON</h3>
+                <p class="text-xs opacity-75">Fashion. Art. Craftsmanship.</p>
+            </div>
+            <div class="text-center">
+                <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+                    <span class="text-xs">Sitemap</span>
+                    <span class="text-xs">Legal Notices</span>
+                    <span class="text-xs">Privacy Policy</span>
+                    <span class="text-xs">California Supply Chains Act</span>
+                    <span class="text-xs">Do Not Sell or Share My Personal Information</span>
+                    <span class="text-xs">Accessibility</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CLEAN JAVASCRIPT - Minimal Integration Code -->
+    <script>
+        // Cart data for checkout
+        const cartData = {
+            total: 780000, // $7,800.00 in cents
+            items: [
+                {
+                    id: 'M11945',
+                    name: 'Speedy Soft 30 Crafty',
+                    price: 340000, // $3,400.00 in cents
+                    quantity: 1,
+                    color: 'Monogram Rouge',
+                    material: 'Monogram',
+                    image: '/assets/images/speedy-soft-30-crafty.png'
+                },
+                {
+                    id: '1A9H2D',
+                    name: 'Monogram Bloom Belted Dress',
+                    price: 440000, // $4,400.00 in cents
+                    quantity: 1,
+                    color: 'Milky White',
+                    size: '34',
+                    image: '/assets/images/monogram-bloom-belted-dress.png'
+                }
+            ]
+        };
+
+        // Initialize SDK for automatic user recognition
+        window.FairsSDK.init();
+
+        // Pay with Fairs button handler - this is all that's needed!
+        document.getElementById('fairs-checkout-button').addEventListener('click', function() {
+            console.log('[Clean LV Cart] Opening Fairs checkout...');
+            
+            window.FairsSDK.checkout.open({
+                order: {
+                    id: `lv_cart_clean_${Date.now()}`,
+                    total: cartData.total,
+                    currency: 'USD',
+                    items: cartData.items
+                },
+                onSuccess: function(result) {
+                    console.log('[Clean LV Cart] ✅ Payment successful:', result);
+                },
+                onCancel: function() {
+                    console.log('[Clean LV Cart] ❌ Payment cancelled');
+                }
+            });
+        });
+
+        // Traditional checkout button
+        document.getElementById('proceed-to-checkout-button').addEventListener('click', function() {
+            window.location.href = '/checkout';
+        });
+
+        // Demo comparison info
+        console.log('🛒 CLEAN LV CART INTEGRATION DEMO');
+        console.log('📊 Code: ~20 lines (vs ~100 in original cart)');
+        console.log('✅ Light modal backdrop by default');
+        console.log('✅ Zero debugging bloat');
+        console.log('🧪 Test with: woosh@woosh.com (existing user) or any new email');
+    </script>
+</body>
+</html> 

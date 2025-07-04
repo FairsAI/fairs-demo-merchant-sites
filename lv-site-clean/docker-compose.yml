@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  lv-clean-site:
+    build: .
+    container_name: lv-clean-site
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+    networks:
+      - fairs-network
+    depends_on:
+      - fairs-commerce-platform
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lv-clean.rule=Host(`lv-clean.local`)"
+      - "traefik.http.services.lv-clean.loadbalancer.server.port=3008"
+
+  # Reference to main platform (if running standalone)
+  fairs-commerce-platform:
+    image: fairs-commerce-platform:latest
+    container_name: fairs-commerce-platform
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - fairs-network
+    profiles:
+      - standalone
+
+networks:
+  fairs-network:
+    external: true 
