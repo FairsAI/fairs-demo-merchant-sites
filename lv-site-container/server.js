@@ -8,6 +8,9 @@ const PORT = process.env.PORT || 3007;
 // Enable CORS for cross-origin requests
 app.use(cors());
 
+// Parse JSON bodies
+app.use(express.json());
+
 // Serve static assets
 app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -77,6 +80,88 @@ app.get('/lv-checkout-form-enhanced.html', (req, res) => {
 
 app.get('/test-1-lv-checkout.html', (req, res) => {
     res.redirect('/test-checkout');
+});
+
+// Louis Vuitton Promo Code Validation Endpoint
+app.post('/fairs/promo-validate', (req, res) => {
+    const { code, cartTotal, cartItems } = req.body;
+    
+    console.log(`[LV Site] 🎟️ Validating promo code: ${code}`);
+    console.log(`[LV Site] 💰 Cart total: $${cartTotal}`);
+    console.log(`[LV Site] 🛍️ Cart items: ${cartItems?.length || 0}`);
+    
+    // Louis Vuitton specific promo codes
+    const promoCodes = {
+        'LV20': {
+            type: 'percentage',
+            value: 20,
+            description: '20% off your entire order',
+            minOrder: 0,
+            maxDiscount: 1000
+        },
+        'LUXURY50': {
+            type: 'fixed',
+            value: 50,
+            description: '$50 off orders over $200',
+            minOrder: 200,
+            maxDiscount: 50
+        },
+        'FREESHIP': {
+            type: 'shipping',
+            value: 0,
+            description: 'Free shipping on your order',
+            minOrder: 0,
+            maxDiscount: 25
+        },
+        'VIP100': {
+            type: 'fixed',
+            value: 100,
+            description: '$100 off orders over $500',
+            minOrder: 500,
+            maxDiscount: 100
+        }
+    };
+    
+    const promoCode = promoCodes[code.toUpperCase()];
+    
+    if (!promoCode) {
+        return res.json({
+            valid: false,
+            message: 'Invalid promo code'
+        });
+    }
+    
+    // Check minimum order requirement
+    if (cartTotal < promoCode.minOrder) {
+        return res.json({
+            valid: false,
+            message: `Minimum order of $${promoCode.minOrder} required for this promo code`
+        });
+    }
+    
+    // Calculate discount
+    let discount = 0;
+    let discountType = promoCode.type;
+    
+    if (promoCode.type === 'percentage') {
+        discount = Math.min((cartTotal * promoCode.value) / 100, promoCode.maxDiscount);
+    } else if (promoCode.type === 'fixed') {
+        discount = promoCode.value;
+    } else if (promoCode.type === 'shipping') {
+        discount = promoCode.maxDiscount; // Shipping discount
+        discountType = 'shipping';
+    }
+    
+    console.log(`[LV Site] ✅ Promo code valid: ${code} - $${discount} discount`);
+    
+    res.json({
+        valid: true,
+        code: code.toUpperCase(),
+        discount: discount,
+        discountType: discountType,
+        description: promoCode.description,
+        message: `${promoCode.description} - You saved $${discount.toFixed(2)}!`
+    });
 });
 
 // Health check endpoint
