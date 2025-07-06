@@ -84,10 +84,13 @@ app.get('/test-1-lv-checkout.html', (req, res) => {
 
 // Louis Vuitton Promo Code Validation Endpoint
 app.post('/fairs/promo-validate', (req, res) => {
-    const { code, cartTotal, cartItems } = req.body;
+    const { code, cartTotal, cartItems, cart_total } = req.body;
+    
+    // Handle both cartTotal and cart_total for compatibility
+    const totalAmount = cartTotal || cart_total || 0;
     
     console.log(`[LV Site] 🎟️ Validating promo code: ${code}`);
-    console.log(`[LV Site] 💰 Cart total: $${cartTotal}`);
+    console.log(`[LV Site] 💰 Cart total: $${totalAmount}`);
     console.log(`[LV Site] 🛍️ Cart items: ${cartItems?.length || 0}`);
     
     // Louis Vuitton specific promo codes
@@ -132,7 +135,7 @@ app.post('/fairs/promo-validate', (req, res) => {
     }
     
     // Check minimum order requirement
-    if (cartTotal < promoCode.minOrder) {
+    if (totalAmount < promoCode.minOrder) {
         return res.json({
             valid: false,
             message: `Minimum order of $${promoCode.minOrder} required for this promo code`
@@ -144,7 +147,7 @@ app.post('/fairs/promo-validate', (req, res) => {
     let discountType = promoCode.type;
     
     if (promoCode.type === 'percentage') {
-        discount = Math.min((cartTotal * promoCode.value) / 100, promoCode.maxDiscount);
+        discount = Math.min((totalAmount * promoCode.value) / 100, promoCode.maxDiscount);
     } else if (promoCode.type === 'fixed') {
         discount = promoCode.value;
     } else if (promoCode.type === 'shipping') {
@@ -161,6 +164,17 @@ app.post('/fairs/promo-validate', (req, res) => {
         discountType: discountType,
         description: promoCode.description,
         message: `${promoCode.description} - You saved $${discount.toFixed(2)}!`
+    });
+});
+
+// Test POST endpoint to verify JSON parsing
+app.post('/test-post', (req, res) => {
+    console.log('[LV Site] 🧪 Test POST request received');
+    console.log('[LV Site] 📦 Request body:', req.body);
+    res.json({
+        success: true,
+        message: 'POST endpoint working',
+        received: req.body
     });
 });
 

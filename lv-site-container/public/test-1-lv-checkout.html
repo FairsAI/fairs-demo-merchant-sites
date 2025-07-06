@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Louis Vuitton - Checkout (Production SDK)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-            <script src="http://localhost:3000/assets/fairs-sdk-enhanced.js?v=20250619-user-recognition-fix"></script>
+    <script src="http://localhost:3000/fairs-sdk-v2.js?v=2.3&t=1751791800000"></script>
 
     <style>
         /* Load Futura font from lv-checkout */
@@ -462,31 +462,31 @@
     </footer>
 
     <script>
-        // 🎯 PRODUCTION LOUIS VUITTON INTEGRATION - ENHANCED SDK
-        // Enhanced SDK auto-initializes and is available as window.FairsSDK
+        // 🎯 PRODUCTION LOUIS VUITTON INTEGRATION - SDK V2
+        // Using SDK V2 with endpoint-first architecture and automatic modal resizing
         
-        // Test data for LV checkout
+        // Test data for LV checkout (prices in cents for backend compatibility)
         const TEST_DATA = {
             cart: {
-                total: 780000, // $7,800.00 in cents
+                total: 780000, // 780000 cents = $7,800.00
                 items: [
                     {
                         id: 'M11945',
                         name: 'Speedy Soft 30 Crafty',
-                        price: 340000, // $3,400.00 in cents
+                        price: 340000, // 340000 cents = $3,400.00
                         quantity: 1,
                         color: 'Monogram Rouge',
                         material: 'Monogram',
-                        image: '/assets/images/speedy-soft-30-crafty.png'
+                        image: 'http://localhost:3007/assets/images/speedy-soft-30-crafty.png'
                     },
                     {
                         id: '1A9H2D',
                         name: 'Monogram Bloom Belted Dress',
-                        price: 440000, // $4,400.00 in cents
+                        price: 440000, // 440000 cents = $4,400.00
                         quantity: 1,
                         color: 'Milky White',
                         size: '34',
-                        image: '/assets/images/monogram-bloom-belted-dress.png'
+                        image: 'http://localhost:3007/assets/images/monogram-bloom-belted-dress.png'
                     }
                 ]
             }
@@ -496,69 +496,77 @@
         window.cartData = TEST_DATA.cart;
         window.cart = TEST_DATA.cart;
 
+        // 🎯 COMPLETE LOUIS VUITTON INTEGRATION - SDK V2
+        const fairsSDK = new FairsSDK();
+        
+        // Initialize SDK V2 with configuration
+        fairsSDK.init({
+            merchantId: 'lv-demo-merchant',
+            publishableKey: 'pk_dev_lv_demo',
+            apiUrl: 'http://localhost:4000',
+            merchantDomain: 'http://localhost:3007',
+            debug: true,
+            cart: TEST_DATA.cart
+        }).then(() => {
+            console.log('[LV Checkout] ✅ SDK V2 initialized successfully');
+        }).catch(error => {
+            console.error('[LV Checkout] ❌ SDK V2 initialization failed:', error);
+        });
+
+        // Store checkout data globally for the multi-step checkout service to access
+        window.fairsCheckoutData = {
+            order: {
+                id: `lv_order_${Date.now()}`,
+                total: TEST_DATA.cart.total, // Already in cents
+                currency: 'USD',
+                items: TEST_DATA.cart.items
+            },
+            customer: {
+                email: 'test@louisvuitton.com',
+                phone: '+1-555-0123'
+            },
+            merchantId: 'louis-vuitton-demo'
+        };
+
         // Add event handler for Pay with Fairs button
         document.getElementById('fairs-checkout-button').addEventListener('click', async function() {
-            // Open Fairs checkout modal
-            console.log('[LV Test] 🚀 Opening enhanced SDK checkout...');
-            
-            // Debug: Check SDK availability
-            console.log('[LV Test] 🔍 window.FairsSDK:', !!window.FairsSDK);
-            console.log('[LV Test] 🔍 window.FairsSDK.checkout:', !!window.FairsSDK?.checkout);
-            console.log('[LV Test] 🔍 window.FairsSDK.checkout.open:', typeof window.FairsSDK?.checkout?.open);
+            console.log('[LV Test] 🚀 Opening SDK V2 checkout with full data delivery...');
             
             try {
-                // Ensure SDK is ready
-                if (!window.FairsSDK) {
-                    throw new Error('FairsSDK not available');
-                }
-                
-                if (!window.FairsSDK.checkout) {
-                    throw new Error('FairsSDK.checkout not available');
-                }
-                
-                if (typeof window.FairsSDK.checkout.open !== 'function') {
-                    throw new Error('FairsSDK.checkout.open is not a function');
-                }
-                
-                // Format checkout data for enhanced SDK
-                const checkoutData = {
-                    order: {
-                        total: TEST_DATA.cart.total, // Already in cents
+                // Use SDK V2 checkout with comprehensive data delivery
+                await fairsSDK.openCheckout({
+                    cart: TEST_DATA.cart,
+                    userEmail: 'test@louisvuitton.com',
+                    cartParams: {
+                        requestShipping: true,  // Enable automatic shipping options fetching
+                        items: TEST_DATA.cart.items,
+                        total: TEST_DATA.cart.total,
                         currency: 'USD',
-                        items: TEST_DATA.cart.items // Already in cents
-                    },
-                    customer: {
-                        email: 'test@louisvuitton.com',
-                        phone: '+1-555-0123'
-                    },
-                    onSuccess: function(result) {
-                        console.log('[LV Test] ✅ Payment successful:', result);
-                        if (result.completed) {
-                            // Alert removed for smoother user experience
-                        } else {
-                            // Alert removed for smoother user experience
+                        subtotal: TEST_DATA.cart.total,
+                        shipping: {
+                            required: true,
+                            defaultAddress: {
+                                state: 'CA',
+                                country: 'US',
+                                city: 'Los Angeles'
+                            }
+                        },
+                        promoCode: {
+                            enabled: true,
+                            allowMultiple: false
                         }
                     },
-                    onCancel: function() {
-                        console.log('[LV Test] ❌ Payment cancelled');
-                    },
-                    onError: function(error) {
-                        console.log('[LV Test] 💥 Payment error:', error);
-                        // Alert removed for smoother user experience
-                    },
-                    onPopupOpen: function() {
-                        console.log('[LV Test] 📦 Modal opened');
-                    },
-                    onClose: function(reason) {
-                        console.log('[LV Test] 🚪 Modal closed:', reason);
+                    merchantData: {
+                        brand: 'Louis Vuitton',
+                        category: 'luxury',
+                        storeId: 'lv-beverly-hills',
+                        currency: 'USD'
                     }
-                };
-
-                // Use the enhanced SDK's checkout functionality
-                const modal = window.FairsSDK.checkout.open(checkoutData);
-                console.log('[LV Test] 📋 Modal created:', !!modal);
+                });
+                console.log('[LV Test] ✅ SDK V2 checkout with full data delivery opened successfully');
+                
             } catch (error) {
-                console.error('[LV Test] ❌ Error opening checkout:', error);
+                console.error('[LV Test] ❌ Error opening SDK V2 checkout:', error);
                 // Alert removed for smoother user experience
             }
         });
@@ -570,81 +578,93 @@
             window.location.href = '/lv-checkout-form-enhanced';
         });
 
-        console.log('[LV Checkout] 🚀 Enhanced SDK loaded with cart total: $' + (TEST_DATA.cart.total / 100).toFixed(2));
-        console.log('[LV Checkout] 📧 Enhanced SDK automatically monitoring for user recognition');
-        console.log('[LV Checkout] 🔘 Enhanced SDK automatically attached to checkout button');
+        // Initialize SDK when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[LV Checkout] 🚀 SDK V2 loaded with cart total: $' + (TEST_DATA.cart.total / 100).toFixed(2));
+            console.log('[LV Checkout] 📧 SDK V2 automatically monitoring for user recognition');
+            console.log('[LV Checkout] 🔘 SDK V2 automatically attached to checkout button');
+            console.log('[LV Checkout] 🎯 Using SDK V2 with endpoint-first architecture');
+        });
 
-        // Debug: Test absolute URL conversion
-        function testAbsoluteURLConversion() {
-            console.log('[LV Checkout] 🔍 Testing absolute URL conversion...');
+        // Debug: Test cart data
+        function testCartData() {
+            console.log('[LV Checkout] 🔍 Testing cart data...');
             
-            // Test the cart data image URLs
+            // Test the cart data
+            console.log('[LV Checkout] ✅ Cart data:', TEST_DATA.cart);
+            
             TEST_DATA.cart.items.forEach((item, index) => {
                 console.log(`[LV Checkout] Item ${index + 1}: ${item.name}`);
-                console.log(`[LV Checkout] Original image URL: ${item.image}`);
-                
-                // Simulate the absolute URL conversion that should happen in extractors
-                const absoluteUrl = item.image.startsWith('http') ? 
-                    item.image : 
-                    `${window.location.origin}${item.image}`;
-                    
-                console.log(`[LV Checkout] Expected absolute URL: ${absoluteUrl}`);
+                console.log(`[LV Checkout] Price: $${(item.price / 100).toFixed(2)}`);
+                console.log(`[LV Checkout] Image URL: ${item.image}`);
             });
         }
 
         // Run the test after a short delay
-        setTimeout(testAbsoluteURLConversion, 1000);
+        setTimeout(testCartData, 1000);
 
-        // Add manual cart extraction test
-        window.testCartExtraction = async function() {
-            console.log('[LV Checkout] 🧪 Manual cart extraction test...');
+        // Add manual checkout test
+        window.testSDKV2Checkout = async function() {
+            console.log('[LV Checkout] 🧪 Manual SDK V2 checkout test with full data delivery...');
             
             try {
-                // Enhanced SDK handles cart extraction automatically
-                console.log('[LV Checkout] ✅ Enhanced SDK cart data:', TEST_DATA.cart);
+                console.log('[LV Checkout] ✅ SDK V2 available:', !!fairsSDK);
+                console.log('[LV Checkout] ✅ Cart data loaded:', TEST_DATA.cart);
                 
-                if (TEST_DATA.cart && TEST_DATA.cart.items) {
-                    TEST_DATA.cart.items.forEach((item, index) => {
-                        console.log(`[LV Checkout] Item ${index + 1}:`, {
-                            name: item.name,
-                            price: (item.price / 100).toFixed(2), // Convert to dollars for display
-                            image: item.image,
-                            imageType: item.image ? (item.image.startsWith('http') ? 'absolute' : 'relative') : 'none'
-                        });
-                    });
-                    
-                    // Track successful extraction
-                    if (window.FairsSDK && window.FairsSDK.trackAnalytics) {
-                        window.FairsSDK.trackAnalytics('manual_extraction_test', {
-                            itemCount: TEST_DATA.cart.items.length,
-                            totalAmount: TEST_DATA.cart.total / 100 // Convert to dollars for display
-                        });
+                // Test opening the checkout with full data delivery
+                await fairsSDK.openCheckout({
+                    cart: TEST_DATA.cart,
+                    userEmail: 'test@louisvuitton.com',
+                    cartParams: {
+                        requestShipping: true,
+                        items: TEST_DATA.cart.items,
+                        total: TEST_DATA.cart.total,
+                        currency: 'USD',
+                        subtotal: TEST_DATA.cart.total,
+                        shipping: {
+                            required: true,
+                            defaultAddress: {
+                                state: 'CA',
+                                country: 'US',
+                                city: 'Los Angeles'
+                            }
+                        },
+                        promoCode: {
+                            enabled: true,
+                            allowMultiple: false
+                        }
+                    },
+                    merchantData: {
+                        brand: 'Louis Vuitton',
+                        category: 'luxury',
+                        storeId: 'lv-beverly-hills',
+                        currency: 'USD'
                     }
-                } else {
-                    console.log('[LV Checkout] ❌ No cart data available');
-                }
+                });
+                console.log('[LV Checkout] ✅ SDK V2 checkout with full data delivery opened successfully');
+                
             } catch (error) {
-                console.error('[LV Checkout] ❌ Manual extraction failed:', error);
+                console.error('[LV Checkout] ❌ SDK V2 checkout test failed:', error);
             }
         };
 
         // Add button to trigger manual test
         const testButton = document.createElement('button');
-        testButton.textContent = 'Test Enhanced SDK';
+        testButton.textContent = 'Test SDK V2 Checkout';
         testButton.style.cssText = `
             position: fixed;
             top: 10px;
             right: 10px;
             z-index: 10000;
             padding: 8px 12px;
-            background: #007bff;
+            background: #28a745;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
         `;
-        testButton.onclick = window.testCartExtraction;
+        testButton.onclick = window.testSDKV2Checkout;
         document.body.appendChild(testButton);
     </script>
 </body>
