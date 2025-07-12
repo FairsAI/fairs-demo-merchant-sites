@@ -11,8 +11,6 @@ services:
       - PORT=3007
     networks:
       - fairs-network
-    depends_on:
-      - fairs-commerce-platform
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -34,4 +32,4 @@ services:
 
 networks:
   fairs-network:
-    external: true 
+    driver: bridge

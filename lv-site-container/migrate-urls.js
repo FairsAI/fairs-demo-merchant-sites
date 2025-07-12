@@ -5,6 +5,12 @@ const path = require('path');
 function updateAssetUrls(filePath) {
     console.log(`📝 Processing: ${filePath}`);
     
+    // Skip all processing for test-1-lv-checkout.html as it has custom SDK configuration
+    if (filePath.includes('test-1-lv-checkout.html')) {
+        console.log(`   ⏭️  Skipping test file with custom SDK configuration`);
+        return 0;
+    }
+    
     let content = fs.readFileSync(filePath, 'utf8');
     let changes = 0;
 
