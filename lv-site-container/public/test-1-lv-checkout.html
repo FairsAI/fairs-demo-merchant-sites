@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Louis Vuitton - Checkout (Production SDK)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="http://localhost:3000/fairs-sdk-v2.js"></script>
+    <script src="http://localhost:3003/js/fairs-sdk-unified.js"></script>
         data-merchant="lv-demo-merchant" 
         data-publishable-key="pk_test_lv_demo" 
         data-api-url="http://localhost:4000"
@@ -466,8 +466,8 @@
     </footer>
 
     <script>
-        // 🎯 PRODUCTION LOUIS VUITTON INTEGRATION - SDK V2
-        // Using SDK V2 with endpoint-first architecture and automatic modal resizing
+        // 🎯 PRODUCTION LOUIS VUITTON INTEGRATION - Unified SDK
+        // Using Unified SDK with endpoint-first architecture and automatic modal resizing
         
         // Test data for LV checkout (prices in cents for backend compatibility)
         const TEST_DATA = {
@@ -500,22 +500,12 @@
         window.cartData = TEST_DATA.cart;
         window.cart = TEST_DATA.cart;
 
-        // 🎯 COMPLETE LOUIS VUITTON INTEGRATION - SDK V2
-        const fairsSDK = new FairsSDK();
+        // 🎯 COMPLETE LOUIS VUITTON INTEGRATION - Unified SDK
+        // The unified SDK is already initialized and available as window.FairsSDK
         
-        // Initialize SDK V2 with configuration
-        fairsSDK.init({
-            merchantId: 'lv-demo-merchant',
-            publishableKey: 'pk_dev_lv_demo',
-            apiUrl: 'http://localhost:4000',
-            merchantDomain: 'http://localhost:3007',
-            debug: true,
-            cart: TEST_DATA.cart
-        }).then(() => {
-            console.log('[LV Checkout] ✅ SDK V2 initialized successfully');
-        }).catch(error => {
-            console.error('[LV Checkout] ❌ SDK V2 initialization failed:', error);
-        });
+        // Set cart data for the SDK
+        FairsSDK.cart.setData(TEST_DATA.cart);
+        console.log('[LV Checkout] ✅ Unified SDK ready and cart data set');
 
         // Store checkout data globally for the multi-step checkout service to access
         window.fairsCheckoutData = {
@@ -534,11 +524,11 @@
 
         // Add event handler for Pay with Fairs button
         document.getElementById('fairs-checkout-button').addEventListener('click', async function() {
-            console.log('[LV Test] 🚀 Opening SDK V2 checkout with full data delivery...');
+            console.log('[LV Test] 🚀 Opening Unified SDK checkout with full data delivery...');
             
             try {
-                // Use SDK V2 checkout with comprehensive data delivery
-                await fairsSDK.openCheckout({
+                // Use Unified SDK checkout with comprehensive data delivery
+                await FairsSDK.modal.open({
                     cart: TEST_DATA.cart,
                     userEmail: 'test@louisvuitton.com',
                     cartParams: {
@@ -567,10 +557,11 @@
                         currency: 'USD'
                     }
                 });
-                console.log('[LV Test] ✅ SDK V2 checkout with full data delivery opened successfully');
+                
+                console.log('[LV Test] ✅ Unified SDK checkout with full data delivery opened successfully');
                 
             } catch (error) {
-                console.error('[LV Test] ❌ Error opening SDK V2 checkout:', error);
+                console.error('[LV Test] ❌ Error opening Unified SDK checkout:', error);
                 // Alert removed for smoother user experience
             }
         });
@@ -584,10 +575,10 @@
 
         // Initialize SDK when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[LV Checkout] 🚀 SDK V2 loaded with cart total: $' + (TEST_DATA.cart.total / 100).toFixed(2));
-            console.log('[LV Checkout] 📧 SDK V2 automatically monitoring for user recognition');
-            console.log('[LV Checkout] 🔘 SDK V2 automatically attached to checkout button');
-            console.log('[LV Checkout] 🎯 Using SDK V2 with endpoint-first architecture');
+            console.log('[LV Checkout] 🚀 Unified SDK loaded with cart total: $' + (TEST_DATA.cart.total / 100).toFixed(2));
+            console.log('[LV Checkout] 📧 Unified SDK automatically monitoring for user recognition');
+            console.log('[LV Checkout] 🔘 Unified SDK automatically attached to checkout button');
+            console.log('[LV Checkout] 🎯 Using Unified SDK with endpoint-first architecture');
         });
 
         // Debug: Test cart data
@@ -609,14 +600,14 @@
 
         // Add manual checkout test
         window.testSDKV2Checkout = async function() {
-            console.log('[LV Checkout] 🧪 Manual SDK V2 checkout test with full data delivery...');
+            console.log('[LV Checkout] 🧪 Manual Unified SDK checkout test with full data delivery...');
             
             try {
-                console.log('[LV Checkout] ✅ SDK V2 available:', !!fairsSDK);
+                console.log('[LV Checkout] ✅ Unified SDK available:', !!FairsSDK);
                 console.log('[LV Checkout] ✅ Cart data loaded:', TEST_DATA.cart);
                 
                 // Test opening the checkout with full data delivery
-                await fairsSDK.openCheckout({
+                await FairsSDK.modal.open({
                     cart: TEST_DATA.cart,
                     userEmail: 'test@louisvuitton.com',
                     cartParams: {
@@ -645,16 +636,16 @@
                         currency: 'USD'
                     }
                 });
-                console.log('[LV Checkout] ✅ SDK V2 checkout with full data delivery opened successfully');
+                console.log('[LV Checkout] ✅ Unified SDK checkout with full data delivery opened successfully');
                 
             } catch (error) {
-                console.error('[LV Checkout] ❌ SDK V2 checkout test failed:', error);
+                console.error('[LV Checkout] ❌ Unified SDK checkout test failed:', error);
             }
         };
 
         // Add button to trigger manual test
         const testButton = document.createElement('button');
-        testButton.textContent = 'Test SDK V2 Checkout';
+        testButton.textContent = 'Test Unified SDK Checkout';
         testButton.style.cssText = `
             position: fixed;
             top: 10px;
