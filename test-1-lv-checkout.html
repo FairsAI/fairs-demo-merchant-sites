@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - LV Checkout with Correct SDK Loading</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .note {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .note h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        button {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #333;
+        }
+        .cart-data {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test - LV Checkout SDK Integration</h1>
+        
+        <div class="note">
+            <h3>Architecture Notes:</h3>
+            <ul>
+                <li><strong>Merchant Sites</strong> (like this page) load SDK from Platform Service (port 3000)</li>
+                <li><strong>Checkout HTML</strong> (inside iframe) loads SDK from Checkout Service (port 3003)</li>
+                <li>This follows CLAUDE.md security rules - merchant sites are external, checkout pages are internal</li>
+            </ul>
+        </div>
+
+        <h2>Test Cart Data</h2>
+        <div class="cart-data" id="cartData">
+            Cart will be displayed here...
+        </div>
+
+        <button onclick="openCheckout()">Open Checkout</button>
+
+        <div style="margin-top: 40px;">
+            <h3>How it works:</h3>
+            <ol>
+                <li>This merchant page loads SDK from platform service: <code>http://localhost:3000/fairs-sdk-unified.js</code></li>
+                <li>When checkout opens, iframe loads from checkout service: <code>http://localhost:3003/checkout-html/step/1</code></li>
+                <li>The checkout HTML pages load their own SDK: <code>/js/fairs-sdk-unified.js</code> (relative to checkout service)</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Load SDK from Platform Service (port 3000) - Correct for merchant sites -->
+    <script src="http://localhost:3000/fairs-sdk-unified.js"></script>
+    
+    <script>
+        // Sample cart data
+        const cartData = {
+            items: [
+                {
+                    id: 'lv-001',
+                    name: 'Louis Vuitton Neverfull MM',
+                    price: 1850,
+                    quantity: 1,
+                    image: 'https://us.louisvuitton.com/images/is/image/lv/neverfull-mm.jpg'
+                },
+                {
+                    id: 'lv-002', 
+                    name: 'Louis Vuitton Speedy 30',
+                    price: 1140,
+                    quantity: 1,
+                    image: 'https://us.louisvuitton.com/images/is/image/lv/speedy-30.jpg'
+                }
+            ],
+            subtotal: 2990,
+            tax: 299,
+            shipping: 0,
+            total: 3289
+        };
+
+        // Display cart data
+        document.getElementById('cartData').textContent = JSON.stringify(cartData, null, 2);
+
+        // Wait for SDK to load before using it
+        window.addEventListener('load', function() {
+            if (window.FairsSDK) {
+                FairsSDK.cart.setData(cartData);
+                console.log('✅ Cart data set in FairsSDK');
+                console.log('SDK Configuration:', FairsSDK.getConfig());
+            } else {
+                console.error('❌ FairsSDK not loaded. Check browser console for errors.');
+            }
+        });
+
+        // Open checkout function
+        function openCheckout() {
+            if (!window.FairsSDK) {
+                alert('FairsSDK not loaded! Check console for errors.');
+                return;
+            }
+
+            console.log('Opening checkout with FairsSDK...');
+            
+            // Open modal - the iframe will load from checkout service
+            if (window.FairsSDK && window.FairsSDK.modal && window.FairsSDK.modal.open) {
+                FairsSDK.modal.open({
+                    cart: cartData,
+                    merchantData: {
+                        merchant: 'louis-vuitton',
+                        name: 'Louis Vuitton'
+                    }
+                });
+            } else {
+                console.error('FairsSDK.modal.open is not available');
+            }
+        }
+
+        // SDK configuration will be logged after load event
+    </script>
+</body>
+</html>
