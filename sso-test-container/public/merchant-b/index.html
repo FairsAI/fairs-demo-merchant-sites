@@ -115,7 +115,7 @@
     </div>
 
     <!-- Load SDK with Merchant B config -->
-    <script src="http://localhost:3000/fairs-sdk-unified.js"
+    <script src="http://localhost:3000/fairs-sdk-unified.js?v=3.0.4-consolidated"
         data-merchant="test-merchant-b" 
         data-publishable-key="pk_test_merchant_b" 
         data-api-base-url="http://localhost:4000"></script>
@@ -146,13 +146,14 @@
         const updateSSOStatus = async () => {
             const statusDiv = document.getElementById('sso-status');
             
-            // Check local authentication
-            const isAuthenticated = window.FairsSDK?.auth?.isAuthenticated() || false;
-            const authToken = window.FairsSDK?.auth?.getAuthToken();
+            // Check local authentication (server-side only now)
+            // Remove checks for localStorage tokens as we're using server-side sessions
+            const authToken = localStorage.getItem('fairs_auth_token');
             const ssoId = localStorage.getItem('fairs_sso_id');
             
             let html = '';
-            html += `<div><span class="status-indicator ${isAuthenticated ? 'status-active' : 'status-inactive'}"></span>Local Auth: ${isAuthenticated}</div>`;
+            // Server-side SSO doesn't have local auth state
+            html += `<div><span class="status-indicator status-pending"></span>Checking server-side SSO...</div>`;
             html += `<div><span class="status-indicator ${authToken ? 'status-active' : 'status-inactive'}"></span>Auth Token: ${authToken ? 'Present' : 'Not found'}</div>`;
             html += `<div><span class="status-indicator ${ssoId ? 'status-active' : 'status-inactive'}"></span>SSO ID: ${ssoId || 'Not found'}</div>`;
             
