@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSO Flow Test - Merchant A</title>
+    <meta name="fairs-merchant-id" content="test-merchant-a">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Futura', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .test-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background: #10b981; }
+        .status-inactive { background: #ef4444; }
+        .status-pending { background: #f59e0b; }
+        .log-entry {
+            font-family: monospace;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: #1f2937;
+            color: #d1d5db;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">SSO Flow Test Suite</h1>
+        
+        <!-- SSO Status Section -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">SSO Status</h2>
+            <div id="sso-status" class="space-y-2">
+                <div><span class="status-indicator status-inactive"></span>Checking SSO status...</div>
+            </div>
+        </div>
+
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test Controls</h2>
+            <div class="space-y-4">
+                <div>
+                    <input type="email" id="test-email" placeholder="Enter email" class="px-4 py-2 border rounded mr-2" value="test@example.com">
+                    <input type="tel" id="test-phone" placeholder="Phone (optional)" class="px-4 py-2 border rounded" value="+1234567890">
+                </div>
+                <div class="flex gap-4">
+                    <button id="test-otp-send" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                        1. Send OTP
+                    </button>
+                    <input type="text" id="otp-code" placeholder="Enter OTP" class="px-4 py-2 border rounded" style="width: 120px;">
+                    <button id="test-otp-verify" class="px-4 py-2 bg-black text-white rounded hover:bg-gray-800">
+                        2. Verify OTP
+                    </button>
+                    <button id="test-sso-status" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Check SSO Status
+                    </button>
+                </div>
+                <div class="flex gap-4">
+                    <button id="test-checkout" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        Test Checkout Flow
+                    </button>
+                    <button id="test-logout" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Console Log -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Console Log</h2>
+            <div id="console-log" class="max-h-96 overflow-y-auto">
+                <!-- Log entries will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Load SDK -->
+    <script src="http://localhost:3003/fairs-sdk-unified.js"
+        data-merchant="test-merchant-a" 
+        data-publishable-key="pk_test_merchant_a" 
+        data-api-base-url="http://localhost:4000"></script>
+
+    <script>
+        // Wait for SDK to load
+        window.addEventListener('load', () => {
+            console.log('[Test Page] Window loaded, checking SDK:', window.FairsSDK);
+            if (window.FairsSDK) {
+                console.log('[Test Page] SDK modules available:', Object.keys(window.FairsSDK));
+                console.log('[Test Page] Auth module:', window.FairsSDK.auth);
+            }
+        });
+        
+        // Test utilities
+        // Debug all fetch calls
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            console.log('🔍 FETCH CALL:', args[0], args[1]?.method || 'GET');
+            return originalFetch.apply(this, arguments);
+        };
+        
+        const log = (message, data = null) => {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}`;
+            document.getElementById('console-log').appendChild(logEntry);
+            console.log(message, data);
+        };
+
+        const updateSSOStatus = async () => {
+            const statusDiv = document.getElementById('sso-status');
+            
+            // Check if SDK auth module exists
+            if (!window.FairsSDK?.auth) {
+                statusDiv.innerHTML = '<div><span class="status-indicator status-inactive"></span>SDK Auth module not loaded</div>';
+                return;
+            }
+
+            // Clear old localStorage data from previous tests
+            localStorage.removeItem('fairs_auth_token');
+            localStorage.removeItem('fairs_sso_id');
+            
+            // Check server-side SSO status (always check, regardless of localStorage)
+            let ssoStatus = null;
+            try {
+                ssoStatus = await window.FairsSDK.auth.checkSSOStatus();
+            } catch (error) {
+                log('Failed to check SSO status', error);
+            }
+            
+            // Show localStorage status for debugging (should be empty)
+            const authToken = localStorage.getItem('fairs_auth_token');
+            const ssoId = localStorage.getItem('fairs_sso_id');
+            const isAuthenticated = ssoStatus?.ssoActive || false;
+
+            // Update status display
+            let html = '';
+            html += `<div><span class="status-indicator ${isAuthenticated ? 'status-active' : 'status-inactive'}"></span>Authenticated: ${isAuthenticated}</div>`;
+            html += `<div><span class="status-indicator ${authToken ? 'status-active' : 'status-inactive'}"></span>Auth Token: ${authToken ? 'Present' : 'Not found'}</div>`;
+            html += `<div><span class="status-indicator ${ssoId ? 'status-active' : 'status-inactive'}"></span>SSO ID: ${ssoId || 'Not found'}</div>`;
+            
+            if (ssoStatus?.success) {
+                html += `<div><span class="status-indicator status-active"></span>SSO Active: ${ssoStatus.ssoActive || false}</div>`;
+                if (ssoStatus.data) {
+                    html += `<div class="ml-6 text-sm text-gray-600">`;
+                    html += `<div>Merchant Access: ${ssoStatus.data.merchantAccess?.join(', ') || 'None'}</div>`;
+                    html += `<div>Cross-Merchant: ${ssoStatus.data.merchantAccess?.length > 1 ? 'Enabled' : 'Disabled'}</div>`;
+                    html += `</div>`;
+                }
+            }
+            
+            statusDiv.innerHTML = html;
+        };
+
+        // Test functions
+        const testSendOTP = async () => {
+            const email = document.getElementById('test-email').value;
+            const phone = document.getElementById('test-phone').value;
+            const identifier = email || phone;
+            
+            if (!identifier) {
+                log('Error: Email or phone required');
+                return;
+            }
+            
+            log('Sending OTP', { identifier });
+            
+            try {
+                const result = await window.FairsSDK.auth.sendOTP(identifier, 'test-merchant-a');
+                log('OTP send result', result);
+                
+                if (result.success) {
+                    addTestResult('OTP Send', true, 'OTP sent successfully');
+                } else {
+                    addTestResult('OTP Send', false, result.error || 'Failed to send OTP');
+                }
+            } catch (error) {
+                log('OTP send error', error);
+                addTestResult('OTP Send', false, error.message);
+            }
+        };
+
+        const testVerifyOTP = async () => {
+            const email = document.getElementById('test-email').value;
+            const phone = document.getElementById('test-phone').value;
+            const code = document.getElementById('otp-code').value;
+            const identifier = email || phone;
+            
+            if (!identifier || !code) {
+                log('Error: Identifier and OTP code required');
+                return;
+            }
+            
+            log('Verifying OTP', { identifier, code });
+            
+            try {
+                const deviceInfo = {
+                    deviceId: localStorage.getItem('fairs_device_id') || 'test-device-' + Date.now(),
+                    deviceFingerprint: {
+                        userAgent: navigator.userAgent,
+                        language: navigator.language,
+                        screenResolution: `${screen.width}x${screen.height}`,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    }
+                };
+                
+                const result = await window.FairsSDK.auth.verifyOTP(identifier, code, 'test-merchant-a', deviceInfo);
+                log('OTP verify result', result);
+                
+                if (result.success) {
+                    addTestResult('OTP Verify', true, 'Authentication successful');
+                    if (result.sso) {
+                        addTestResult('SSO Created', true, `SSO ID: ${result.sso.ssoId}`);
+                    }
+                    // Update status after successful auth
+                    setTimeout(updateSSOStatus, 500);
+                } else {
+                    addTestResult('OTP Verify', false, result.error || 'Failed to verify OTP');
+                }
+            } catch (error) {
+                log('OTP verify error', error);
+                addTestResult('OTP Verify', false, error.message);
+            }
+        };
+
+        const testCheckoutFlow = async () => {
+            log('Testing checkout flow');
+            
+            // Simulate checkout with sample cart
+            const cartData = {
+                items: [{
+                    id: 'lv-bag-001',
+                    name: 'Louis Vuitton Neverfull MM',
+                    price: 1850,
+                    quantity: 1,
+                    image: '/assets/images/lv-bag.jpg'
+                }],
+                subtotal: 1850,
+                tax: 148,
+                shipping: 0,
+                total: 1998
+            };
+            
+            // Set cart data
+            window.FairsSDK.cart.setData(cartData);
+            
+            // Open checkout modal
+            window.FairsSDK.modal.open({
+                checkoutUrl: 'http://localhost:3003/checkout-html/step/1?hasCart=true'
+            });
+            
+            addTestResult('Checkout Flow', true, 'Checkout modal opened');
+        };
+
+        const testLogout = async () => {
+            log('Testing logout');
+            
+            try {
+                // Check if authenticated
+                const authToken = localStorage.getItem('fairs_auth_token');
+                
+                // Revoke SSO if available
+                if (authToken) {
+                    const result = await window.FairsSDK.auth.revokeSSO();
+                    log('SSO revoke result', result);
+                }
+                
+                // Clear tokens manually
+                localStorage.removeItem('fairs_auth_token');
+                localStorage.removeItem('fairs_refresh_token');
+                localStorage.removeItem('fairs_sso_id');
+                sessionStorage.removeItem('fairs_sso_id');
+                
+                addTestResult('Logout', true, 'Successfully logged out');
+                setTimeout(updateSSOStatus, 500);
+            } catch (error) {
+                log('Logout error', error);
+                addTestResult('Logout', false, error.message);
+            }
+        };
+
+        const addTestResult = (testName, success, message) => {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `p-2 rounded ${success ? 'bg-green-100' : 'bg-red-100'}`;
+            resultDiv.innerHTML = `
+                <span class="font-semibold">${testName}:</span>
+                <span class="${success ? 'text-green-700' : 'text-red-700'}">${success ? '✓' : '✗'} ${message}</span>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        };
+
+        // Event listeners - set up after page load
+        window.addEventListener('load', () => {
+            document.getElementById('test-otp-send').addEventListener('click', testSendOTP);
+            document.getElementById('test-otp-verify').addEventListener('click', testVerifyOTP);
+            document.getElementById('test-sso-status').addEventListener('click', updateSSOStatus);
+            document.getElementById('test-checkout').addEventListener('click', testCheckoutFlow);
+            document.getElementById('test-logout').addEventListener('click', testLogout);
+        });
+
+        // Initial status check
+        window.addEventListener('DOMContentLoaded', () => {
+            log('SSO Test Page loaded');
+            // Wait for SDK to be fully initialized
+            setTimeout(() => {
+                if (window.FairsSDK && window.FairsSDK.auth) {
+                    log('SDK loaded with auth module', {
+                        authMethods: Object.keys(window.FairsSDK.auth)
+                    });
+                    updateSSOStatus();
+                } else {
+                    log('ERROR: SDK or auth module not available');
+                    console.error('FairsSDK:', window.FairsSDK);
+                }
+            }, 1000);
+        });
+
+        // Auto-fill for quick testing
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                // Don't change the email if it's already filled
+                const emailField = document.getElementById('test-email');
+                if (!emailField.value) {
+                    emailField.value = 'test@example.com';
+                }
+                document.getElementById('test-phone').value = '+15551234567';
+                document.getElementById('otp-code').value = '123456';
+                log('Test data auto-filled');
+            }
+        });
+    </script>
+</body>
+</html>

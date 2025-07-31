@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Merchant SSO Test - Merchant B</title>
+    <meta name="fairs-merchant-id" content="test-merchant-b">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .gucci-green { background: #006241; }
+        .test-section {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-active { background: #10b981; }
+        .status-inactive { background: #ef4444; }
+        .btn-gucci {
+            background: #006241;
+            color: white;
+        }
+        .btn-gucci:hover {
+            background: #004d33;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-2">Cross-Merchant SSO Test</h1>
+        <p class="text-gray-600 mb-8">Merchant B - Testing cross-merchant authentication</p>
+        
+        <!-- Merchant Info -->
+        <div class="test-section bg-green-50">
+            <h2 class="text-xl font-semibold mb-4">Merchant Information</h2>
+            <div class="space-y-2">
+                <div><strong>Current Merchant:</strong> Test Merchant B (test-merchant-b)</div>
+                <div><strong>Test Scenario:</strong> User authenticated at Merchant A should be able to shop here</div>
+            </div>
+        </div>
+
+        <!-- SSO Status Section -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">SSO Status at Merchant B</h2>
+            <div id="sso-status" class="space-y-2">
+                <div><span class="status-indicator status-inactive"></span>Checking SSO status...</div>
+            </div>
+        </div>
+
+        <!-- Cross-Merchant Actions -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Cross-Merchant Actions</h2>
+            <div class="space-y-4">
+                <div class="bg-yellow-50 p-4 rounded">
+                    <p class="text-sm">First authenticate at Merchant A, then test these actions:</p>
+                </div>
+                <div class="flex gap-4">
+                    <button id="check-cross-sso" class="px-4 py-2 btn-gucci rounded hover:bg-green-700">
+                        Check Cross-Merchant SSO
+                    </button>
+                    <button id="exchange-token" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Exchange Token for Gucci
+                    </button>
+                </div>
+                <div class="flex gap-4">
+                    <button id="test-checkout" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        Checkout at Gucci
+                    </button>
+                    <button id="test-user-lookup" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                        Test User Lookup
+                    </button>
+                </div>
+                <div class="flex gap-4 mt-2">
+                    <button id="trigger-cross-auth" class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700">
+                        Trigger Cross-Domain Auth
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Product -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test Product</h2>
+            <div class="flex items-center space-x-4">
+                <div class="w-32 h-32 bg-gray-300 rounded flex items-center justify-center">
+                    <span class="text-gray-600">Gucci Bag</span>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Gucci Dionysus Small Bag</h3>
+                    <p class="text-gray-600">$2,850</p>
+                    <button id="add-to-cart" class="mt-2 px-4 py-2 btn-gucci rounded text-sm">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Load SDK with Merchant B config -->
+    <script src="http://localhost:3003/fairs-sdk-unified.js"
+        data-merchant="test-merchant-b" 
+        data-publishable-key="pk_test_merchant_b" 
+        data-api-base-url="http://localhost:4000"></script>
+
+    <script>
+        // Logging utility
+        const log = (message, data = null) => {
+            console.log(`[Gucci SSO Test] ${message}`, data);
+        };
+
+        const addTestResult = (testName, success, message, details = null) => {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `p-3 rounded ${success ? 'bg-green-100' : 'bg-red-100'} mb-2`;
+            resultDiv.innerHTML = `
+                <div class="flex items-start">
+                    <span class="${success ? 'text-green-700' : 'text-red-700'} mr-2">${success ? '✓' : '✗'}</span>
+                    <div class="flex-1">
+                        <span class="font-semibold">${testName}:</span>
+                        <span class="${success ? 'text-green-700' : 'text-red-700'}">${message}</span>
+                        ${details ? `<div class="text-sm text-gray-600 mt-1">${details}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        };
+
+        const updateSSOStatus = async () => {
+            const statusDiv = document.getElementById('sso-status');
+            
+            // Check local authentication
+            const isAuthenticated = window.FairsSDK?.auth?.isAuthenticated() || false;
+            const authToken = window.FairsSDK?.auth?.getAuthToken();
+            const ssoId = localStorage.getItem('fairs_sso_id');
+            
+            let html = '';
+            html += `<div><span class="status-indicator ${isAuthenticated ? 'status-active' : 'status-inactive'}"></span>Local Auth: ${isAuthenticated}</div>`;
+            html += `<div><span class="status-indicator ${authToken ? 'status-active' : 'status-inactive'}"></span>Auth Token: ${authToken ? 'Present' : 'Not found'}</div>`;
+            html += `<div><span class="status-indicator ${ssoId ? 'status-active' : 'status-inactive'}"></span>SSO ID: ${ssoId || 'Not found'}</div>`;
+            
+            // Check SSO status
+            if (authToken) {
+                try {
+                    const ssoStatus = await window.FairsSDK.auth.checkSSOStatus();
+                    if (ssoStatus?.success && ssoStatus.data) {
+                        html += `<div class="mt-2 p-2 bg-blue-50 rounded">`;
+                        html += `<div class="font-semibold">SSO Session Details:</div>`;
+                        html += `<div class="text-sm">Merchant Access: ${ssoStatus.data.merchantAccess?.join(', ') || 'None'}</div>`;
+                        html += `<div class="text-sm">Can Access Merchant B: ${ssoStatus.data.merchantAccess?.includes('test-merchant-b') ? 'Yes' : 'No'}</div>`;
+                        html += `</div>`;
+                    }
+                } catch (error) {
+                    log('Failed to check SSO status', error);
+                }
+            }
+            
+            statusDiv.innerHTML = html;
+        };
+
+        const checkCrossSSO = async () => {
+            log('Checking cross-merchant SSO status');
+            
+            try {
+                // Check if we have SSO from another merchant
+                const ssoId = localStorage.getItem('fairs_sso_id');
+                const authToken = window.FairsSDK.auth.getAuthToken();
+                
+                if (!authToken || !ssoId) {
+                    addTestResult('Cross-SSO Check', false, 'No SSO session found', 'Please authenticate at LV store first');
+                    return;
+                }
+                
+                // Check SSO status
+                const ssoStatus = await window.FairsSDK.auth.checkSSOStatus();
+                
+                if (ssoStatus?.success && ssoStatus.data) {
+                    const hasMerchantBAccess = ssoStatus.data.merchantAccess?.includes('test-merchant-b');
+                    addTestResult(
+                        'Cross-SSO Check', 
+                        hasMerchantBAccess, 
+                        hasMerchantBAccess ? 'User has access to Merchant B' : 'User does not have Merchant B access',
+                        `Merchant access: ${ssoStatus.data.merchantAccess?.join(', ')}`
+                    );
+                } else {
+                    addTestResult('Cross-SSO Check', false, 'Failed to check SSO status');
+                }
+            } catch (error) {
+                addTestResult('Cross-SSO Check', false, error.message);
+            }
+        };
+
+        const exchangeToken = async () => {
+            log('Exchanging token for Merchant B');
+            
+            try {
+                const result = await window.FairsSDK.auth.exchangeSSO('test-merchant-b');
+                
+                if (result.success) {
+                    addTestResult(
+                        'Token Exchange', 
+                        true, 
+                        'Successfully exchanged token for Merchant B',
+                        `New merchant access: ${result.merchantAccess?.join(', ')}`
+                    );
+                    
+                    // Update status after exchange
+                    setTimeout(updateSSOStatus, 500);
+                } else {
+                    addTestResult('Token Exchange', false, result.error || 'Failed to exchange token');
+                }
+            } catch (error) {
+                addTestResult('Token Exchange', false, error.message);
+            }
+        };
+
+        const testUserLookup = async () => {
+            log('Testing user lookup at Gucci');
+            
+            try {
+                // Get current user
+                const currentUser = window.FairsSDK.user.getCurrent();
+                if (!currentUser?.email) {
+                    addTestResult('User Lookup', false, 'No authenticated user found');
+                    return;
+                }
+                
+                // Simulate checkout user lookup
+                const response = await fetch('/api/checkout-proxy/user-lookup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-merchant-id': 'test-merchant-b'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ 
+                        email: currentUser.email
+                    })
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    addTestResult(
+                        'User Lookup',
+                        userData.recognized,
+                        userData.recognized ? 'User recognized at Gucci' : 'User not recognized',
+                        `SSO Active: ${userData.sso?.hasActiveSession}, Can Skip Auth: ${userData.sso?.canSkipAuth}`
+                    );
+                } else {
+                    addTestResult('User Lookup', false, 'Lookup request failed');
+                }
+            } catch (error) {
+                addTestResult('User Lookup', false, error.message);
+            }
+        };
+
+        const addToCart = () => {
+            const cartData = {
+                merchant: 'test-merchant-b',
+                items: [{
+                    id: 'product-b-001',
+                    name: 'Test Product B',
+                    price: 2850,
+                    quantity: 1,
+                    image: '/assets/images/product-b.jpg'
+                }],
+                subtotal: 2850,
+                tax: 228,
+                shipping: 0,
+                total: 3078
+            };
+            
+            window.FairsSDK.cart.setData(cartData);
+            addTestResult('Add to Cart', true, 'Product added to cart');
+        };
+
+        const testCheckout = () => {
+            log('Opening checkout at Gucci');
+            
+            // Ensure cart has items
+            const cartData = window.FairsSDK.cart.getData();
+            if (!cartData?.items?.length) {
+                addToCart();
+            }
+            
+            // Open checkout with cross-merchant parameter
+            window.FairsSDK.modal.open({
+                checkoutUrl: 'http://localhost:3003/checkout-html/step/1?hasCart=true&merchant=test-merchant-b'
+            });
+            
+            addTestResult('Checkout Flow', true, 'Checkout modal opened for Gucci');
+        };
+        
+        const triggerCrossAuth = async () => {
+            log('Manually triggering cross-domain authentication');
+            
+            try {
+                // First check if we have any auth from another domain
+                const hasLocalAuth = localStorage.getItem('fairs_auth_token');
+                
+                if (hasLocalAuth) {
+                    addTestResult('Cross-Domain Auth', false, 'Already have local auth token');
+                    return;
+                }
+                
+                // Trigger cross-domain authentication
+                const result = await window.FairsSDK.crossDomain.authenticate('test-merchant-b');
+                
+                if (result && result.success) {
+                    addTestResult(
+                        'Cross-Domain Auth', 
+                        true, 
+                        'Cross-domain authentication successful',
+                        `Method: ${result.method}, Redirecting: ${result.redirecting || false}`
+                    );
+                    
+                    if (!result.redirecting) {
+                        // Update status after auth
+                        setTimeout(updateSSOStatus, 500);
+                    }
+                } else {
+                    addTestResult('Cross-Domain Auth', false, 'No SSO session found on other merchants');
+                }
+            } catch (error) {
+                addTestResult('Cross-Domain Auth', false, error.message);
+            }
+        };
+
+        // Event listeners
+        document.getElementById('check-cross-sso').addEventListener('click', checkCrossSSO);
+        document.getElementById('exchange-token').addEventListener('click', exchangeToken);
+        document.getElementById('test-user-lookup').addEventListener('click', testUserLookup);
+        document.getElementById('add-to-cart').addEventListener('click', addToCart);
+        document.getElementById('test-checkout').addEventListener('click', testCheckout);
+        document.getElementById('trigger-cross-auth').addEventListener('click', triggerCrossAuth);
+
+        // Initial status check
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Cross-merchant SSO test page loaded');
+            setTimeout(updateSSOStatus, 1000);
+            
+            // Check if coming from another merchant with SSO
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('sso_exchange')) {
+                log('Detected SSO exchange parameter');
+                addTestResult('SSO Exchange', true, 'Arrived from another merchant with SSO');
+            }
+        });
+    </script>
+</body>
+</html>
