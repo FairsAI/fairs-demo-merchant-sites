@@ -98,7 +98,7 @@
     <script src="http://localhost:3000/fairs-sdk-unified.js"
         data-merchant="lv-demo-merchant" 
         data-publishable-key="pk_test_lv_demo" 
-        data-api-url="http://localhost:4000"
+        data-api-base-url="http://localhost:4000"
         data-debug="true"></script>
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -497,6 +497,16 @@
             }
         };
 
+        // Logger utility to control logging levels
+        const DEBUG_MODE = window.location.search.includes('debug=true');
+        const Logger = {
+            log: function(...args) {
+                if (DEBUG_MODE) console.log(...args);
+            },
+            warn: console.warn.bind(console),
+            error: console.error.bind(console)
+        };
+
         // Expose cart data for extraction
         window.cartData = TEST_DATA.cart;
         window.cart = TEST_DATA.cart;
@@ -507,9 +517,9 @@
             if (window.FairsSDK) {
                 // Set cart data for the SDK
                 FairsSDK.cart.setData(TEST_DATA.cart);
-                console.log('[LV Checkout] ✅ Unified SDK ready and cart data set');
+                Logger.log('[LV Checkout] ✅ Unified SDK ready and cart data set');
             } else {
-                console.error('[LV Checkout] ❌ FairsSDK not loaded! Check if SDK is being served correctly.');
+                Logger.error('[LV Checkout] ❌ FairsSDK not loaded! Check if SDK is being served correctly.');
             }
         });
 
@@ -530,11 +540,11 @@
 
         // Add event handler for Pay with Fairs button
         document.getElementById('fairs-checkout-button').addEventListener('click', async function() {
-            console.log('[LV Test] 🚀 Opening Unified SDK checkout with full data delivery...');
+            Logger.log('[LV Test] 🚀 Opening Unified SDK checkout with full data delivery...');
             
             // Check if SDK is loaded
             if (!window.FairsSDK) {
-                console.error('[LV Test] ❌ FairsSDK not loaded! Cannot open checkout.');
+                Logger.error('[LV Test] ❌ FairsSDK not loaded! Cannot open checkout.');
                 alert('SDK not loaded. Please refresh the page and try again.');
                 return;
             }
@@ -571,10 +581,10 @@
                     }
                 });
                 
-                console.log('[LV Test] ✅ Unified SDK checkout with full data delivery opened successfully');
+                Logger.log('[LV Test] ✅ Unified SDK checkout with full data delivery opened successfully');
                 
             } catch (error) {
-                console.error('[LV Test] ❌ Error opening Unified SDK checkout:', error);
+                Logger.error('[LV Test] ❌ Error opening Unified SDK checkout:', error);
                 // Alert removed for smoother user experience
             }
         });
@@ -605,10 +615,10 @@
 
         // Debug: Test cart data
         function testCartData() {
-            console.log('[LV Checkout] 🔍 Testing cart data...');
+            Logger.log('[LV Checkout] 🔍 Testing cart data...');
             
             // Test the cart data
-            console.log('[LV Checkout] ✅ Cart data:', TEST_DATA.cart);
+            Logger.log('[LV Checkout] ✅ Cart data:', TEST_DATA.cart);
             
             TEST_DATA.cart.items.forEach((item, index) => {
                 console.log(`[LV Checkout] Item ${index + 1}: ${item.name}`);
