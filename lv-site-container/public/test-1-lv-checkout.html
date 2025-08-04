@@ -95,11 +95,18 @@
 </head>
 <body class="min-h-screen flex flex-col bg-white">
     <!-- Load SDK after body tag -->
-    <script src="http://localhost:3000/fairs-sdk-unified.js"
-        data-merchant="lv-demo-merchant" 
-        data-publishable-key="pk_test_lv_demo" 
-        data-api-base-url="http://localhost:4000"
-        data-debug="true"></script>
+    <script>
+        // Dynamically load SDK with cache busting
+        (function() {
+            var script = document.createElement('script');
+            script.src = 'http://localhost:3000/fairs-sdk-unified.js?v=' + Date.now();
+            script.setAttribute('data-merchant', 'lv-demo-merchant');
+            script.setAttribute('data-publishable-key', 'pk_test_lv_demo');
+            script.setAttribute('data-api-base-url', 'http://localhost:4000');
+            script.setAttribute('data-debug', 'true');
+            document.head.appendChild(script);
+        })();
+    </script>
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
