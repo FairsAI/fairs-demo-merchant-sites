@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lululemon - Shopping Bag</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for icons and specific elements */
+        .thumbs-up-icon {
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L9 10v11M7 20L7 10'/%3E%3C/svg%3E");
+        }
+        
+        .gift-icon {
+            width: 18px;
+            height: 18px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7'/%3E%3C/svg%3E");
+        }
+        
+        .info-icon {
+            width: 14px;
+            height: 14px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E");
+        }
+        
+        .user-icon {
+            width: 18px;
+            height: 18px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/%3E%3C/svg%3E");
+        }
+        
+        .x-icon {
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
+        }
+        
+        .product-image {
+            width: 120px;
+            height: 150px;
+            background-color: #f3f4f6;
+        }
+        
+        .select-wrapper {
+            position: relative;
+        }
+        
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <!-- Gift Card Banner -->
+    <div id="gift-banner" class="bg-white text-black text-center py-2 px-4 relative text-sm border-b border-gray-200">
+        <span>
+            Your gift card called—it wants you to use it. Don't know where to start? 
+            <a href="#" class="underline font-medium">Shop Bestsellers</a>
+        </span>
+        <button 
+            onclick="document.getElementById('gift-banner').style.display='none'"
+            class="absolute right-4 top-1/2 transform -translate-y-1/2"
+            aria-label="Close banner"
+        >
+            <div class="x-icon"></div>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-gray-200 py-4 bg-white">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="#" class="flex items-center">
+                <img src="images/lululemon-logo.png" alt="lululemon" class="h-8">
+            </a>
+            <a href="#" class="flex items-center text-sm font-medium">
+                <div class="user-icon mr-2"></div>
+                Sign in
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Section -->
+            <div class="lg:col-span-2">
+                <!-- Cart Items -->
+                <div class="mb-8 pr-4 sm:pr-8 lg:pr-12">
+                    <h1 class="text-2xl font-bold mb-4">My Bag (2 Items)</h1>
+
+                    <!-- Alert -->
+                    <div class="mb-6 bg-gray-100 border border-black rounded p-4 flex items-center">
+                        <div class="thumbs-up-icon mr-2 flex-shrink-0"></div>
+                        <span>These items are going fast. Check out now to make them yours.</span>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div class="space-y-6">
+                        <!-- Item 1 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <div class="flex flex-col sm:flex-row">
+                                <div class="sm:w-32 mb-4 sm:mb-0">
+                                    <img src="images/lulu-top.webp" alt="lululemon Align Tank Top" class="product-image rounded object-cover">
+                                </div>
+
+                                <div class="flex-1 pl-6 sm:pl-8">
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <div class="w-full sm:w-[80%]">
+                                            <h3 class="font-medium text-lg">lululemon Align™ Waist-Length Racerback Tank Top</h3>
+                                            <p class="text-gray-600 mb-1">Washed Denim</p>
+                                            <p class="text-gray-600 mb-2">Size 0</p>
+                                            <button class="text-gray-600 underline text-sm mb-4">Edit</button>
+                                            <p class="text-sm">Free Shipping + Free Returns</p>
+                                        </div>
+
+                                        <div class="flex flex-col sm:items-end mt-4 sm:mt-0">
+                                            <div class="flex items-center justify-between sm:justify-end w-full mb-4">
+                                                <div class="sm:mr-8 sm:order-2">
+                                                    <p class="text-gray-600 mb-1">Item Price</p>
+                                                    <p class="font-medium">$58.00</p>
+                                                </div>
+
+                                                <div class="sm:mr-8 sm:order-1">
+                                                    <p class="text-gray-600 mb-1">Quantity</p>
+                                                    <div class="select-wrapper">
+                                                        <select class="w-20 border border-gray-300 rounded px-3 py-2 bg-white">
+                                                            <option value="1">1</option>
+                                                            <option value="2">2</option>
+                                                            <option value="3">3</option>
+                                                            <option value="4">4</option>
+                                                            <option value="5">5</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="hidden sm:block sm:order-3">
+                                                    <p class="text-gray-600 mb-1">Item Price</p>
+                                                    <p class="font-medium">$58.00</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex space-x-4 mt-auto">
+                                                <button class="text-sm underline">Save for Later</button>
+                                                <button class="text-sm underline">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <div class="flex flex-col sm:flex-row">
+                                <div class="sm:w-32 mb-4 sm:mb-0">
+                                    <img src="images/lulu-bottom.webp" alt="Wunder Under High-Rise Tight" class="product-image rounded object-cover">
+                                </div>
+
+                                <div class="flex-1 pl-6 sm:pl-8">
+                                    <div class="flex flex-col sm:flex-row justify-between">
+                                        <div class="w-full sm:w-[80%]">
+                                            <h3 class="font-medium text-lg">Wunder Under SmoothCover High-Rise Tight 25"</h3>
+                                            <p class="text-gray-600 mb-1">Washed Denim</p>
+                                            <p class="text-gray-600 mb-2">Size 0</p>
+                                            <button class="text-gray-600 underline text-sm mb-4">Edit</button>
+                                            <p class="text-sm">Free Shipping + Free Returns</p>
+                                        </div>
+
+                                        <div class="flex flex-col sm:items-end mt-4 sm:mt-0">
+                                            <div class="flex items-center justify-between sm:justify-end w-full mb-4">
+                                                <div class="sm:mr-8 sm:order-2">
+                                                    <p class="text-gray-600 mb-1">Item Price</p>
+                                                    <p class="font-medium">$98.00</p>
+                                                </div>
+
+                                                <div class="sm:mr-8 sm:order-1">
+                                                    <p class="text-gray-600 mb-1">Quantity</p>
+                                                    <div class="select-wrapper">
+                                                        <select class="w-20 border border-gray-300 rounded px-3 py-2 bg-white">
+                                                            <option value="1">1</option>
+                                                            <option value="2">2</option>
+                                                            <option value="3">3</option>
+                                                            <option value="4">4</option>
+                                                            <option value="5">5</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="hidden sm:block sm:order-3">
+                                                    <p class="text-gray-600 mb-1">Item Price</p>
+                                                    <p class="font-medium">$98.00</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex space-x-4 mt-auto">
+                                                <button class="text-sm underline">Save for Later</button>
+                                                <button class="text-sm underline">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Items Section -->
+                <div class="pr-4 sm:pr-8 lg:pr-12">
+                    <div class="border border-gray-200 rounded p-6">
+                        <h2 class="text-lg font-medium mb-4">Saved for Later (0 Items)</h2>
+                        <p class="text-gray-600 text-sm">Items you save for later will appear here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="border border-gray-200 rounded-md p-6 sticky top-4">
+                    <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+
+                    <div class="flex items-start mb-6">
+                        <div class="gift-icon mr-3 mt-1 flex-shrink-0"></div>
+                        <p class="text-sm">If you have a gift card, use it at checkout.</p>
+                    </div>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>$156.00</span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="mr-1">Shipping</span>
+                                <div class="info-icon text-gray-500"></div>
+                            </div>
+                            <span class="font-medium">FREE</span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="mr-1">Tax</span>
+                                <div class="info-icon text-gray-500"></div>
+                            </div>
+                            <span>Calculated at checkout</span>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 flex justify-between font-medium">
+                            <span>Estimated Total</span>
+                            <span>USD $156.00</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 text-sm text-center">
+                        <p class="mb-2">or 4 payments of $39.00 with</p>
+                        <div class="flex justify-center items-center space-x-2">
+                            <span class="font-bold">Afterpay</span>
+                            <span>or</span>
+                            <span class="font-bold">Klarna</span>
+                            <div class="info-icon text-gray-500 ml-1"></div>
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded mb-4 font-medium tracking-wider">
+                        CHECKOUT
+                    </button>
+
+                    <div class="text-center mb-4">
+                        <p class="text-sm mb-2">or checkout quickly with</p>
+                        <button class="w-full bg-black text-white py-3 px-4 rounded flex items-center justify-center font-bold">
+                            FAIRS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-bold mb-4">Help</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-black">Size Guide</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Returns</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Exchanges</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">About</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-black">Our Story</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Careers</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Press</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Sustainability</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">Connect</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 hover:text-black">Instagram</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Facebook</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">Twitter</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-black">YouTube</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">Newsletter</h3>
+                    <p class="text-sm text-gray-600 mb-4">Get the latest updates and offers.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Email" class="flex-1 border border-gray-300 rounded-l px-3 py-2 text-sm">
+                        <button class="bg-black text-white px-4 py-2 rounded-r text-sm">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-600">
+                <p>&copy; 2024 lululemon athletica. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple cart functionality
+        function updateQuantity(itemIndex, newQuantity) {
+            // Update quantity logic here
+            console.log(`Item ${itemIndex} quantity changed to ${newQuantity}`);
+            // You could update the subtotal and total here
+        }
+
+        function removeItem(itemIndex) {
+            // Remove item logic here
+            console.log(`Remove item ${itemIndex}`);
+        }
+
+        function saveForLater(itemIndex) {
+            // Save for later logic here
+            console.log(`Save item ${itemIndex} for later`);
+        }
+
+        // Add event listeners for quantity changes
+        document.querySelectorAll('select').forEach((select, index) => {
+            select.addEventListener('change', (e) => {
+                updateQuantity(index, e.target.value);
+            });
+        });
+
+        // Add event listeners for remove buttons
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent === 'Remove') {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Get the parent cart item and remove it
+                    const cartItem = e.target.closest('.border-b');
+                    if (cartItem) {
+                        cartItem.remove();
+                        // Update cart count and totals
+                        updateCartCount();
+                    }
+                });
+            }
+            
+            if (button.textContent === 'Save for Later') {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Save for later functionality
+                    console.log('Save for later clicked');
+                });
+            }
+        });
+
+        function updateCartCount() {
+            const cartItems = document.querySelectorAll('.border-b').length;
+            const heading = document.querySelector('h1');
+            if (heading) {
+                heading.textContent = `My Bag (${cartItems} Items)`;
+            }
+        }
+
+        // Checkout button functionality
+        document.querySelector('.bg-red-600').addEventListener('click', () => {
+            // Alert removed for smoother user experience
+                console.log('Proceeding to checkout...');
+        });
+
+        // FAIRS checkout button functionality
+        document.querySelector('.bg-black').addEventListener('click', async () => {
+            console.log('Initiating FAIRS checkout...');
+            
+            // Prepare cart data (prices in cents for checkout service)
+            const cartData = {
+                items: [
+                    {
+                        id: 'align-tank-top',
+                        name: "lululemon Align™ Waist-Length Racerback Tank Top",
+                        price: 5800,  // $58.00 in cents
+                        quantity: 1,
+                        size: "0",
+                        color: "Washed Denim",
+                        sku: 'LW1CTUS-048432',
+                        image: 'http://localhost:3009/images/lulu-top.webp'
+                    },
+                    {
+                        id: 'wunder-under-tight',
+                        name: "Wunder Under SmoothCover High-Rise Tight 25\"",
+                        price: 9800,  // $98.00 in cents
+                        quantity: 1,
+                        size: "0",
+                        color: "Washed Denim",
+                        sku: 'LW5DQMS-048433',
+                        image: 'http://localhost:3009/images/lulu-bottom.webp'
+                    }
+                ],
+                subtotal: 15600,  // $156.00 in cents
+                shipping: 0,
+                tax: 0,
+                total: 15600,  // $156.00 in cents
+                currency: 'USD'
+            };
+            
+            // Store cart data for checkout
+            if (window.FairsSDK && window.FairsSDK.cart) {
+                window.FairsSDK.cart.setData(cartData);
+            }
+            
+            // Open checkout in modal or redirect
+            if (window.FairsSDK && window.FairsSDK.modal) {
+                // Open modal with options (SDK handles URL construction)
+                window.FairsSDK.modal.open({
+                    cart: cartData,
+                    merchantId: 'lululemon',
+                    onClose: () => {
+                        console.log('Checkout modal closed');
+                    }
+                });
+            } else {
+                // Fallback to redirect with correct URL
+                window.location.href = 'http://localhost:3003/checkout-html/step/1?merchant=lululemon';
+            }
+        });
+    </script>
+    <script src="http://localhost:3000/fairs-sdk-unified.js" data-merchant="lululemon"></script>
+</body>
+</html> 

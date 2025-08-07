@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  lululemon-demo-site:
+    build: .
+    container_name: lululemon-demo-site
+    ports:
+      - "3009:3009"
+    environment:
+      - NODE_ENV=production
+      - PORT=3009
+      - MERCHANT_ID=lululemon
+    networks:
+      - fairs-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lululemon-demo.rule=Host(`lululemon-demo.local`)"
+      - "traefik.http.services.lululemon-demo.loadbalancer.server.port=3009"
+
+networks:
+  fairs-network:
+    external: true
