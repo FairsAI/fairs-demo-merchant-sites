@@ -99,7 +99,7 @@
         // Dynamically load SDK with cache busting
         (function() {
             var script = document.createElement('script');
-            script.src = 'http://localhost:4000/api/v1/sdk/fairs-sdk-unified.js?v=' + Date.now();
+            script.src = 'http://localhost:3000/fairs-sdk-unified.js?v=' + Date.now();
             script.setAttribute('data-merchant', 'lv-demo-merchant');
             script.setAttribute('data-publishable-key', 'pk_test_lv_demo');
             script.setAttribute('data-api-base-url', 'http://localhost:4000');
